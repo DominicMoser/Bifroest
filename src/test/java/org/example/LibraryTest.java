@@ -5,6 +5,7 @@ package org.example;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.dmoser.codyssey.bifroest.Constants;
 import org.junit.jupiter.api.Test;
 
 class LibraryTest {
@@ -12,5 +13,6 @@ class LibraryTest {
   void someLibraryMethodReturnsTrue() {
     Library classUnderTest = new Library();
     assertTrue(classUnderTest.someLibraryMethod(), "someLibraryMethod should return 'true'");
+    IO.println(Constants.COMPOSE_VERSION);
   }
 }

@@ -6,10 +6,12 @@
  */
 
 group = "com.dmoser.codyssey"
-
+version = project.findProperty("version") ?: error("Version must be provided via -Pversion")
 plugins {
     // Apply the java-library plugin for API and implementation separation.
     `java-library`
+    id("com.github.gmazzo.buildconfig") version "5.6.5"
+
 }
 
 repositories {
@@ -51,3 +53,12 @@ tasks.jar {
         )
     }
 }
+
+buildConfig {
+    packageName(project.group.toString().lowercase() + "." + project.name.lowercase())
+    className("Constants")
+    documentation.set("Automatically generated class with runtime constants defined in the gradle.properties file.")
+    buildConfigField("String", "COMPOSE_VERSION", "\"${project.version}\"")
+}
+
+
