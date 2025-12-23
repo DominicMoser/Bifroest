@@ -1,0 +1,3 @@
+{
+  "extends": ["./toolkit/configs/releaserc.json"]
+}
