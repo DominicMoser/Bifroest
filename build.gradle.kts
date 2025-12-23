@@ -8,6 +8,8 @@
 group = "com.dmoser.codyssey"
 version = project.findProperty("version") ?: error("Version must be provided via -Pversion")
 val buildConfigClassName = project.name.replaceFirstChar { it.uppercase() } + "BuildConfig"
+val defaultSshPort: String by project
+
 plugins {
     // Apply the java-library plugin for API and implementation separation.
     `java-library`
@@ -26,6 +28,7 @@ dependencies {
 
     api(libs.slf4j)
     runtimeOnly(libs.bundles.log4j)
+    implementation(libs.bundles.jackson)
 
     implementation(libs.bundles.cli)
     implementation(libs.bundles.ssh)
@@ -65,6 +68,8 @@ buildConfig {
     className(buildConfigClassName)
     documentation.set("Automatically generated class with build constants.")
     buildConfigField("String", "VERSION", "\"${project.version}\"")
+    buildConfigField("String", "DEFAULT_SSH_PORT", "\"${defaultSshPort}\"")
+
 }
 
 tasks.named("generateBuildConfig").configure {
