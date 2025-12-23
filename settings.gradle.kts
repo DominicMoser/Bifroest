@@ -10,5 +10,4 @@ plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
 }
 
-rootProject.name = "Bifroest"
-include("lib")
+rootProject.name = "bifroest"
