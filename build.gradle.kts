@@ -7,11 +7,11 @@
 
 group = "com.dmoser.codyssey"
 version = project.findProperty("version") ?: error("Version must be provided via -Pversion")
+val buildConfigClassName = project.name.replaceFirstChar { it.uppercase() } + "BuildConfig"
 plugins {
     // Apply the java-library plugin for API and implementation separation.
     `java-library`
-    id("com.github.gmazzo.buildconfig") version "5.6.5"
-
+    alias(libs.plugins.buildconfig)
 }
 
 repositories {
@@ -20,16 +20,15 @@ repositories {
 }
 
 dependencies {
-    // Use JUnit Jupiter for testing.
-    testImplementation(libs.junit.jupiter)
+    testImplementation(libs.bundles.junit)
+    testImplementation(libs.bundles.mockito)
+    implementation(libs.bundles.jackson)
 
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    api(libs.slf4j)
+    runtimeOnly(libs.bundles.log4j)
 
-    // This dependency is exported to consumers, that is to say found on their compile classpath.
-    api(libs.commons.math3)
-
-    // This dependency is used internally, and not exposed to consumers on their own compile classpath.
-    implementation(libs.guava)
+    implementation(libs.bundles.cli)
+    implementation(libs.bundles.ssh)
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
@@ -37,6 +36,13 @@ java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(25)
     }
+    withJavadocJar()
+    withSourcesJar()
+    sourceCompatibility = JavaVersion.VERSION_25
+}
+
+java {
+
 }
 
 tasks.named<Test>("test") {
@@ -56,9 +62,42 @@ tasks.jar {
 
 buildConfig {
     packageName(project.group.toString().lowercase() + "." + project.name.lowercase())
-    className("Constants")
-    documentation.set("Automatically generated class with runtime constants defined in the gradle.properties file.")
-    buildConfigField("String", "COMPOSE_VERSION", "\"${project.version}\"")
+    className(buildConfigClassName)
+    documentation.set("Automatically generated class with build constants.")
+    buildConfigField("String", "VERSION", "\"${project.version}\"")
+}
+
+tasks.named("generateBuildConfig").configure {
+    // Groups the task under the 'documentation' section
+    group = "documentation"
+    val groupPath = project.group
+        .toString()
+        .lowercase()
+        .replace(".", "/")
+
+    val projectName = project.name.lowercase()
+    val className = buildConfigClassName
+
+    val constantsFile = layout.buildDirectory.file(
+        "generated/sources/buildConfig/main/$groupPath/$projectName/$className.java"
+    )
+
+    doLast {
+        val file = constantsFile.get().asFile
+        println(file.path)
+        if (file.exists()) {
+            // Read the file
+            var content = file.readText()
+
+            // Add Javadoc comments to fields
+            content = content.replace(
+                "public static",
+                "/** Automatically generated value. */\n  public static"
+            )
+            // Write the modified content back to the file
+            file.writeText(content)
+        }
+    }
 }
 
 
