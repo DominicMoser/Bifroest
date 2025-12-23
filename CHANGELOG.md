@@ -1,3 +1,10 @@
+## [1.0.2](https://github.com/DominicMoser/Bifroest/compare/v1.0.1...v1.0.2) (2025-12-23)
+
+
+### Bug Fixes
+
+* update toolkit ([89301b7](https://github.com/DominicMoser/Bifroest/commit/89301b773085ae27412d9d69b51063ece83e08ab))
+
 ## [1.0.1](https://github.com/DominicMoser/Bifroest/compare/v1.0.0...v1.0.1) (2025-12-23)
 
 
