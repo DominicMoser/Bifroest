@@ -30,4 +30,9 @@ public class UpCommand implements Command {
   public Completers.TreeCompleter.Node getCompleterNode() {
     return node("..", "up");
   }
+
+  @Override
+  public String getName() {
+    return "up";
+  }
 }

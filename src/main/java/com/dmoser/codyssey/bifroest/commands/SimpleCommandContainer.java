@@ -37,4 +37,9 @@ public class SimpleCommandContainer implements Command {
   public Completers.TreeCompleter.Node getCompleterNode() {
     return node(this.name);
   }
+
+  @Override
+  public String getName() {
+    return name;
+  }
 }

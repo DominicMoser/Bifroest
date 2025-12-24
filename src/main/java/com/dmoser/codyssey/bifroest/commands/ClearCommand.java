@@ -28,4 +28,9 @@ public class ClearCommand implements Command {
   public Completers.TreeCompleter.Node getCompleterNode() {
     return node("clear", "cl");
   }
+
+  @Override
+  public String getName() {
+    return "clear";
+  }
 }

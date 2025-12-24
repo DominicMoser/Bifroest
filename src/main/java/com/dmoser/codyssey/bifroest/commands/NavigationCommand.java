@@ -40,4 +40,9 @@ public class NavigationCommand implements Command {
   public Completers.TreeCompleter.Node getCompleterNode() {
     return node("/");
   }
+
+  @Override
+  public String getName() {
+    return "move";
+  }
 }

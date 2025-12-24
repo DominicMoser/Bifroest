@@ -1,12 +1,10 @@
 package com.dmoser.codyssey.bifroest.commands;
 
-import static org.jline.builtins.Completers.TreeCompleter.node;
 
 import com.dmoser.codyssey.bifroest.enums.ExecutionSource;
 import com.dmoser.codyssey.bifroest.flags.Flags;
 import com.dmoser.codyssey.bifroest.layers.Layer;
 import java.util.List;
-import org.jline.builtins.Completers;
 
 /**
  * Command used to exit the current session.
@@ -17,17 +15,12 @@ import org.jline.builtins.Completers;
 public class ExitCommand implements Command {
 
   @Override
-  public String getNameRegex() {
-    return "^exit$";
-  }
-
-  @Override
   public ExecutionSource execute(Layer parent, List<String> command) {
     throw Flags.SYSTEM_EXIT_FLAG;
   }
 
   @Override
-  public Completers.TreeCompleter.Node getCompleterNode() {
-    return node("exit");
+  public String getName() {
+    return "exit";
   }
 }

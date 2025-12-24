@@ -11,6 +11,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 import org.jline.builtins.Completers;
 import org.jline.reader.Completer;
 import org.jline.reader.LineReader;
@@ -22,15 +23,21 @@ import org.jline.utils.AttributedStyle;
 public abstract class Layer implements Command {
 
   protected final String layerName;
+  protected List<Command> defaultCommandList = new ArrayList<>();
   protected List<Command> commandList = new ArrayList<>();
   protected String parentName = "";
 
   protected Layer(String layerName) {
     this.layerName = layerName;
-    commandList.add(new ExitCommand());
-    commandList.add(new NavigationCommand());
-    commandList.add(new UpCommand());
-    commandList.add(new ClearCommand());
+    defaultCommandList.add(new ExitCommand());
+    defaultCommandList.add(new NavigationCommand());
+    defaultCommandList.add(new UpCommand());
+    defaultCommandList.add(new ClearCommand());
+    defaultCommandList.add(new LsCommand());
+  }
+
+  public List<String> getCommandNames() {
+    return commandList.stream().map(Command::getName).toList();
   }
 
   public String generatePrompt() {
@@ -58,7 +65,7 @@ public abstract class Layer implements Command {
 
   public Completer getCompleter() {
     return new Completers.TreeCompleter(
-        commandList.stream()
+        Stream.concat(commandList.stream(), defaultCommandList.stream())
             .map(Command::getCompleterNode)
             .toList()
             .toArray(Completers.TreeCompleter.Node[]::new));
@@ -69,7 +76,10 @@ public abstract class Layer implements Command {
 
     List<Object> obj = new LinkedList<>();
     obj.add(this.layerName);
-    obj.addAll(commandList.stream().map(Command::getCompleterNode).toList());
+    obj.addAll(
+        Stream.concat(commandList.stream(), defaultCommandList.stream())
+            .map(Command::getCompleterNode)
+            .toList());
     return node(obj.toArray());
   }
 
@@ -150,8 +160,16 @@ public abstract class Layer implements Command {
             .filter(cmd -> matchKey(cmd.getNameRegex(), command.getFirst().trim()))
             .findFirst();
 
+    if (commandOptional.isEmpty()) {
+      commandOptional =
+          defaultCommandList.stream()
+              .filter(cmd -> matchKey(cmd.getNameRegex(), command.getFirst().trim()))
+              .findFirst();
+    }
+
     // No command found. Maybe return something
     if (commandOptional.isEmpty()) {
+      Context.get().getTerminal().writer().println("Command Not Found");
       return shellReturnType;
     }
 
@@ -183,5 +201,9 @@ public abstract class Layer implements Command {
         .map(s -> s.checkForPath(finalPath))
         .findFirst()
         .orElse(false);
+  }
+
+  public String getName() {
+    return this.layerName;
   }
 }
