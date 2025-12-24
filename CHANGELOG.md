@@ -1,3 +1,12 @@
+# [1.1.0](https://github.com/DominicMoser/Bifroest/compare/v1.0.3...v1.1.0) (2025-12-24)
+
+
+### Features
+
+* add classes for the mvp of the bifroestlib ([b94802c](https://github.com/DominicMoser/Bifroest/commit/b94802c7b916b20e4fc6326eaabb6638f2c4c922))
+* add default ssh port constant ([150f08a](https://github.com/DominicMoser/Bifroest/commit/150f08ad0240bf932b2915b496608fff5e010aee))
+* add simple Example ([7c67aab](https://github.com/DominicMoser/Bifroest/commit/7c67aabc2a9ee529eea2db53d56c6978e204657f))
+
 ## [1.0.3](https://github.com/DominicMoser/Bifroest/compare/v1.0.2...v1.0.3) (2025-12-23)
 
 
