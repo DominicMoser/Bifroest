@@ -48,10 +48,6 @@ java {
     sourceCompatibility = JavaVersion.VERSION_25
 }
 
-java {
-
-}
-
 tasks.named<Test>("test") {
     // Use JUnit Platform for unit tests.
     useJUnitPlatform()
