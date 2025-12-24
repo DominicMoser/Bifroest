@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/DominicMoser/Bifroest/compare/v1.1.2...v1.2.0) (2025-12-24)
+
+
+### Features
+
+* add TerminalRunnerBuilder ([5530767](https://github.com/DominicMoser/Bifroest/commit/5530767928d27916e1dcb6d6d5d6b3f6b2fa583f))
+
 ## [1.1.2](https://github.com/DominicMoser/Bifroest/compare/v1.1.1...v1.1.2) (2025-12-24)
 
 
