@@ -77,14 +77,14 @@ public abstract class Layer implements Command {
     commandList.add(command);
   }
 
-  public void enterLayer(LineReader lineReader) {
-    var terminal = lineReader.getTerminal();
+  public void enterLayer() {
+
     Completer oldCompleter = null;
-    if (lineReader instanceof LineReaderImpl lineReaderImpl) {
+    if (Context.get().getLineReader() instanceof LineReaderImpl lineReaderImpl) {
       oldCompleter = lineReaderImpl.getCompleter();
       lineReaderImpl.setCompleter(getCompleter());
     }
-
+    LineReader lineReader = Context.get().getLineReader();
     while (true) {
       try {
         String line =
@@ -96,7 +96,7 @@ public abstract class Layer implements Command {
         if (commandList.size() > 1 && commandList.getLast().isEmpty()) {
           commandList.removeLast();
         }
-        executeCommand(lineReader, commandList, true);
+        executeCommand(commandList, true);
       } catch (UserInterruptException e) {
       } catch (ShellExitFlag e) {
         break;
@@ -108,7 +108,7 @@ public abstract class Layer implements Command {
   }
 
   @Override
-  public ExecutionSource execute(LineReader lineReader, Layer parent, List<String> command) {
+  public ExecutionSource execute(Layer parent, List<String> command) {
     parentName = parent == null ? "" : parent.getLocation();
     if (command.isEmpty()) {
       throw new RuntimeException("Command should never be null");
@@ -122,8 +122,8 @@ public abstract class Layer implements Command {
     // When the command size is only 1 that means that this shell is called.
     command.removeFirst();
 
-    if (command.isEmpty() || executeCommand(lineReader, command, false) == ExecutionSource.LAYER) {
-      enterLayer(lineReader);
+    if (command.isEmpty() || executeCommand(command, false) == ExecutionSource.LAYER) {
+      enterLayer();
       return ExecutionSource.LAYER;
     }
     return ExecutionSource.COMMAND;
@@ -134,8 +134,7 @@ public abstract class Layer implements Command {
     return p.matcher(command).matches();
   }
 
-  protected ExecutionSource executeCommand(
-      LineReader lineReader, List<String> command, boolean calledInShell) {
+  protected ExecutionSource executeCommand(List<String> command, boolean calledInShell) {
 
     ExecutionSource shellReturnType =
         calledInShell ? ExecutionSource.LAYER : ExecutionSource.COMMAND;
@@ -154,7 +153,7 @@ public abstract class Layer implements Command {
 
     Command shellCommand = commandOptional.get();
 
-    ExecutionSource commandReturnType = shellCommand.execute(lineReader, this, command);
+    ExecutionSource commandReturnType = shellCommand.execute(this, command);
 
     if (shellReturnType == ExecutionSource.LAYER) {
       return ExecutionSource.LAYER;

@@ -8,7 +8,6 @@ import com.dmoser.codyssey.bifroest.layers.Layer;
 import java.util.Arrays;
 import java.util.List;
 import org.jline.builtins.Completers;
-import org.jline.reader.LineReader;
 
 /**
  * Command used to navigate between different shell layers.
@@ -24,7 +23,7 @@ public class NavigationCommand implements Command {
   }
 
   @Override
-  public ExecutionSource execute(LineReader lineReader, Layer parent, List<String> command) {
+  public ExecutionSource execute(Layer parent, List<String> command) {
 
     String path = command.getFirst();
     if (!path.startsWith("/")) {

@@ -1,6 +1,7 @@
 package com.dmoser.codyssey.bifroest.runners;
 
 import com.dmoser.codyssey.bifroest.banner.Banner;
+import com.dmoser.codyssey.bifroest.banner.SimpleContextNameBanner;
 import com.dmoser.codyssey.bifroest.layers.RootShell;
 import com.dmoser.codyssey.bifroest.session.Context;
 import org.jline.reader.LineReader;
@@ -14,13 +15,16 @@ import org.jline.utils.InfoCmp;
 
 public class TerminalRunner {
 
-  public TerminalRunner(String name) {
-    Context.get().setName(name);
-  }
+  RootShell rootShell;
 
-  public TerminalRunner(String name, Banner banner) {
+  private TerminalRunner(String name, RootShell rootShell, Banner banner) {
     Context.get().setName(name);
     Context.get().setBanner(banner);
+    this.rootShell = rootShell;
+  }
+
+  public static NameSetter builder() {
+    return new TerminalRunnerBuilder();
   }
 
   /**
@@ -54,11 +58,59 @@ public class TerminalRunner {
               .option(LineReader.Option.AUTO_MENU, true) // Show menu automatically
               .option(LineReader.Option.MENU_COMPLETE, true) // Cycle through completions
               .build();
-      RootShell rootShell = new RootShell(reader);
+
+      Context.get().setLineReader(reader);
+      Context.get().setTerminal(terminal);
+
       rootShell.start();
       terminal.close();
     } catch (Exception e) {
       throw new RuntimeException(e);
+    }
+  }
+
+  public interface NameSetter {
+    RootShellSetter withName(String name);
+  }
+
+  public interface RootShellSetter {
+    OptionalFieldsSetter andRootShell(RootShell rootShell);
+  }
+
+  public interface OptionalFieldsSetter {
+    OptionalFieldsSetter andBanner(Banner banner);
+
+    TerminalRunner build();
+  }
+
+  private static class TerminalRunnerBuilder
+      implements RootShellSetter, NameSetter, OptionalFieldsSetter {
+
+    RootShell rootShell = null;
+    String name = null;
+    Banner banner = new SimpleContextNameBanner();
+
+    @Override
+    public OptionalFieldsSetter andBanner(Banner banner) {
+      this.banner = banner;
+      return this;
+    }
+
+    @Override
+    public TerminalRunner build() {
+      return new TerminalRunner(name, rootShell, banner);
+    }
+
+    @Override
+    public OptionalFieldsSetter andRootShell(RootShell rootShell) {
+      this.rootShell = rootShell;
+      return this;
+    }
+
+    @Override
+    public RootShellSetter withName(String name) {
+      this.name = name;
+      return this;
     }
   }
 }

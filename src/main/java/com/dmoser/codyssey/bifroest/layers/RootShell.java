@@ -4,14 +4,11 @@ import com.dmoser.codyssey.bifroest.flags.ShellNavigationFlag;
 import com.dmoser.codyssey.bifroest.flags.SystemExitFlag;
 import java.util.ArrayList;
 import java.util.List;
-import org.jline.reader.LineReader;
 
 public class RootShell extends Layer {
-  private final LineReader lineReader;
 
-  public RootShell(LineReader lineReader) {
+  public RootShell() {
     super("rootShell");
-    this.lineReader = lineReader;
   }
 
   @Override
@@ -24,7 +21,7 @@ public class RootShell extends Layer {
     List<String> path = new ArrayList<>(List.of(this.layerName));
     while (true) {
       try {
-        super.execute(this.lineReader, null, path);
+        super.execute(null, path);
         path = new ArrayList<>(List.of(this.layerName));
       } catch (SystemExitFlag exit) {
         // Exiting shell

@@ -7,7 +7,6 @@ import com.dmoser.codyssey.bifroest.flags.Flags;
 import com.dmoser.codyssey.bifroest.layers.Layer;
 import java.util.List;
 import org.jline.builtins.Completers;
-import org.jline.reader.LineReader;
 
 /**
  * A default command that exists in every layer, used to navigate up one shell layer.
@@ -23,7 +22,7 @@ public class UpCommand implements Command {
   }
 
   @Override
-  public ExecutionSource execute(LineReader lineReader, Layer parent, List<String> command) {
+  public ExecutionSource execute(Layer parent, List<String> command) {
     throw Flags.SHELL_EXIT_FLAG;
   }
 
