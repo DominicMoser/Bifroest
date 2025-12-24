@@ -77,6 +77,10 @@ public abstract class Layer implements Command {
     commandList.add(command);
   }
 
+  public void addCommand(String name, SimpleCommand simpleCommand) {
+    commandList.add(new SimpleCommandContainer(name, simpleCommand));
+  }
+
   public void enterLayer() {
 
     Completer oldCompleter = null;
