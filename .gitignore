@@ -13,7 +13,7 @@
 .idea/**/usage.statistics.xml
 .idea/**/dictionaries
 .idea/**/shelf
-
+**/log4j2.xml
 # AWS User-specific
 .idea/**/aws.xml
 

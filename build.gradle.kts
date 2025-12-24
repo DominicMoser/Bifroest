@@ -9,11 +9,15 @@ group = "com.dmoser.codyssey"
 version = project.findProperty("version") ?: error("Version must be provided via -Pversion")
 val buildConfigClassName = project.name.replaceFirstChar { it.uppercase() } + "BuildConfig"
 val defaultSshPort: String by project
+val defaultShellName: String by project
+val defaultBannerLocation: String by project
+
 
 plugins {
     // Apply the java-library plugin for API and implementation separation.
     `java-library`
     alias(libs.plugins.buildconfig)
+    alias(libs.plugins.shadow)
 }
 
 repositories {
@@ -69,7 +73,28 @@ buildConfig {
     documentation.set("Automatically generated class with build constants.")
     buildConfigField("String", "VERSION", "\"${project.version}\"")
     buildConfigField("String", "DEFAULT_SSH_PORT", "\"${defaultSshPort}\"")
+    buildConfigField("String", "DEFAULT_SHELL_NAME", "\"${defaultShellName}\"")
+    buildConfigField("String", "DEFAULT_BANNER_LOCATION", "\"${defaultBannerLocation}\"")
+}
 
+tasks {
+    shadowJar {
+        archiveBaseName.set("bifroest") // Set to your desired jar name
+        archiveClassifier.set("example") // Empty to make it the default artifact
+        archiveVersion.set("${project.version}");
+        manifest {
+            attributes["Main-Class"] = "com.dmoser.codyssey.bifroest.Example" // <- Replace with your main class
+        }
+    }
+}
+
+tasks.register<JavaExec>("runExample") {
+    group = "application"
+    description = "Runs the Bifroest example application."
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass.set("com.dmoser.codyssey.bifroest.Example")
+    // Use standard input for interactive CLI
+    standardInput = System.`in`
 }
 
 tasks.named("generateBuildConfig").configure {
