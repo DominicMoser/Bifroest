@@ -1,3 +1,10 @@
+## [1.2.1](https://github.com/DominicMoser/Bifroest/compare/v1.2.0...v1.2.1) (2025-12-24)
+
+
+### Bug Fixes
+
+* add the maven-publish plugin ([b5f6599](https://github.com/DominicMoser/Bifroest/commit/b5f65997c639fd3fb90385a5d48dd7484b132c20))
+
 # [1.2.0](https://github.com/DominicMoser/Bifroest/compare/v1.1.2...v1.2.0) (2025-12-24)
 
 
