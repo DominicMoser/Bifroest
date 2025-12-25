@@ -1,3 +1,10 @@
+## [1.3.1](https://github.com/DominicMoser/Bifroest/compare/v1.3.0...v1.3.1) (2025-12-25)
+
+
+### Bug Fixes
+
+* add jitpack VERSION  env for build ([e749c77](https://github.com/DominicMoser/Bifroest/commit/e749c778b2844151a165c47111877185f942c9ce))
+
 # [1.3.0](https://github.com/DominicMoser/Bifroest/compare/v1.2.1...v1.3.0) (2025-12-25)
 
 
