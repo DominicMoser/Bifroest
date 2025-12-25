@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/DominicMoser/Bifroest/compare/v1.3.2...v1.4.0) (2025-12-25)
+
+
+### Features
+
+* implement InsertCommand ([3496bbd](https://github.com/DominicMoser/Bifroest/commit/3496bbdbec0023585927b0cb2d1866fc48471e10))
+
 ## [1.3.2](https://github.com/DominicMoser/Bifroest/compare/v1.3.1...v1.3.2) (2025-12-25)
 
 
