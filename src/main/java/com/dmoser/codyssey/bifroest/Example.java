@@ -4,6 +4,7 @@ import com.dmoser.codyssey.bifroest.banner.DefaultBifroestBanner;
 import com.dmoser.codyssey.bifroest.layers.Layer;
 import com.dmoser.codyssey.bifroest.layers.RootShell;
 import com.dmoser.codyssey.bifroest.runners.TerminalRunner;
+import com.dmoser.codyssey.bifroest.session.AppConfig;
 import com.dmoser.codyssey.bifroest.session.Session;
 import java.util.Random;
 
@@ -22,7 +23,7 @@ public class Example extends RootShell {
 
   /** Main entry point for the example application. Starts the SSH CLI server. */
   static void main() {
-    // AppConfig.builder().withAppName("Bifroest").withAppVersion("1.0.0").build();
+    AppConfig.builder().withAppName("Bifroest").andAppVersion("1.0.0").build();
     Example example = new Example();
 
     TerminalRunner runner =
