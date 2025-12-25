@@ -4,7 +4,6 @@ import static org.jline.builtins.Completers.TreeCompleter.node;
 
 import com.dmoser.codyssey.bifroest.enums.ExecutionSource;
 import com.dmoser.codyssey.bifroest.layers.Layer;
-import com.dmoser.codyssey.bifroest.session.Context;
 import java.util.ArrayList;
 import java.util.List;
 import org.jline.builtins.Completers;
@@ -28,8 +27,8 @@ public class SimpleCommandContainer implements Command {
   public ExecutionSource execute(Layer parent, List<String> command) {
     List<String> params = new ArrayList<>(command);
     params.removeFirst();
-    simpleCommand.execute(
-        params, Context.get().getLineReader(), Context.get().getTerminal().writer());
+    simpleCommand.execute(params);
+
     return ExecutionSource.COMMAND;
   }
 

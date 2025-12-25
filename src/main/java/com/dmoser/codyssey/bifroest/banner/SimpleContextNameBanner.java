@@ -1,6 +1,6 @@
 package com.dmoser.codyssey.bifroest.banner;
 
-import com.dmoser.codyssey.bifroest.session.Context;
+import com.dmoser.codyssey.bifroest.session.AppConfig;
 
 public class SimpleContextNameBanner implements Banner {
 
@@ -8,6 +8,6 @@ public class SimpleContextNameBanner implements Banner {
 
   @Override
   public String getString() {
-    return Context.get().getName();
+    return AppConfig.get().appName();
   }
 }

@@ -4,7 +4,7 @@ import static org.jline.builtins.Completers.TreeCompleter.node;
 
 import com.dmoser.codyssey.bifroest.enums.ExecutionSource;
 import com.dmoser.codyssey.bifroest.layers.Layer;
-import com.dmoser.codyssey.bifroest.session.Context;
+import com.dmoser.codyssey.bifroest.session.Session;
 import java.util.List;
 import org.jline.builtins.Completers;
 import org.jline.terminal.Terminal;
@@ -18,7 +18,7 @@ public class ClearCommand implements Command {
 
   @Override
   public ExecutionSource execute(Layer parent, List<String> command) {
-    Terminal terminal = Context.get().getTerminal();
+    Terminal terminal = Session.get().getTerminal();
     terminal.puts(InfoCmp.Capability.clear_screen);
     terminal.flush();
     return null;

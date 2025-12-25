@@ -3,7 +3,7 @@ package com.dmoser.codyssey.bifroest.runners;
 import com.dmoser.codyssey.bifroest.banner.Banner;
 import com.dmoser.codyssey.bifroest.banner.SimpleContextNameBanner;
 import com.dmoser.codyssey.bifroest.layers.RootShell;
-import com.dmoser.codyssey.bifroest.session.Context;
+import java.io.IOException;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.reader.impl.completer.ArgumentCompleter;
@@ -11,15 +11,16 @@ import org.jline.reader.impl.completer.NullCompleter;
 import org.jline.reader.impl.completer.StringsCompleter;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
-import org.jline.utils.InfoCmp;
 
-public class TerminalRunner {
+public class TerminalRunner extends AbstractRunner {
 
   RootShell rootShell;
+  Banner banner;
+  String name;
 
   private TerminalRunner(String name, RootShell rootShell, Banner banner) {
-    Context.get().setName(name);
-    Context.get().setBanner(banner);
+    this.banner = banner;
+    this.name = name;
     this.rootShell = rootShell;
   }
 
@@ -27,24 +28,15 @@ public class TerminalRunner {
     return new TerminalRunnerBuilder();
   }
 
-  /**
-   * Starts the terminal runner.
-   *
-   * <p>Note: Native Jansi support is disabled to avoid restricted method warnings in newer JDKs.
-   * ANSI support is provided by JLine's built-in providers.
-   */
-  public void start() {
+  @Override
+  protected RootShell getRootShell() {
+    return this.rootShell;
+  }
+
+  @Override
+  protected LineReader getLineReader() {
     try {
-      System.setProperty("org.jline.terminal.jansi", "false");
       Terminal terminal = TerminalBuilder.builder().build();
-
-      // Clear screen
-      terminal.puts(InfoCmp.Capability.clear_screen);
-      terminal.flush();
-
-      terminal.writer().println(Context.get().getBanner().getString());
-      terminal.writer().flush();
-
       // Create a line reader
       LineReader reader =
           LineReaderBuilder.builder()
@@ -58,15 +50,21 @@ public class TerminalRunner {
               .option(LineReader.Option.AUTO_MENU, true) // Show menu automatically
               .option(LineReader.Option.MENU_COMPLETE, true) // Cycle through completions
               .build();
+      return reader;
 
-      Context.get().setLineReader(reader);
-      Context.get().setTerminal(terminal);
-
-      rootShell.start();
-      terminal.close();
-    } catch (Exception e) {
-      throw new RuntimeException(e);
+    } catch (IOException exception) {
+      throw new RuntimeException(exception);
     }
+  }
+
+  @Override
+  protected Banner getBanner() {
+    return this.banner;
+  }
+
+  @Override
+  protected String getName() {
+    return name;
   }
 
   public interface NameSetter {

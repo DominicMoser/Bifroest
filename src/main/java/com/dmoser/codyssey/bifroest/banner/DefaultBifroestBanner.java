@@ -1,6 +1,6 @@
 package com.dmoser.codyssey.bifroest.banner;
 
-import com.dmoser.codyssey.bifroest.session.Context;
+import com.dmoser.codyssey.bifroest.session.AppConfig;
 import java.util.regex.Pattern;
 import org.jline.utils.AttributedStringBuilder;
 import org.jline.utils.AttributedStyle;
@@ -38,7 +38,7 @@ public class DefaultBifroestBanner implements Banner {
     var blockStyle =
         AttributedStyle.DEFAULT.foreground(75, 230, 255).background(AttributedStyle.RED);
     var fontStyle = AttributedStyle.DEFAULT.foreground(75, 230, 255);
-    sb.append(bannerText.formatted(Context.get().getName(), Context.get().getVersion()))
+    sb.append(bannerText.formatted(AppConfig.get().appName(), AppConfig.get().appVersion()))
         .styleMatches(Pattern.compile("█"), blockStyle)
         .styleMatches(Pattern.compile("(?<![a-zA-Z0-9])[\\/\\\\_(),`](?![a-zA-Z0-9])"), fontStyle);
     return sb.toAnsi().replace("\n", "\n\r");

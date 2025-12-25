@@ -4,8 +4,9 @@ import static org.jline.builtins.Completers.TreeCompleter.node;
 
 import com.dmoser.codyssey.bifroest.commands.*;
 import com.dmoser.codyssey.bifroest.enums.ExecutionSource;
+import com.dmoser.codyssey.bifroest.flags.AbstractFlag;
 import com.dmoser.codyssey.bifroest.flags.ShellExitFlag;
-import com.dmoser.codyssey.bifroest.session.Context;
+import com.dmoser.codyssey.bifroest.session.Session;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -46,7 +47,7 @@ public abstract class Layer implements Command {
     if (!location.startsWith("/")) {
       location = "/" + location;
     }
-    sb.append(Context.get().getName(), AttributedStyle.DEFAULT.foreground(75, 230, 255));
+    sb.append(Session.get().getName(), AttributedStyle.DEFAULT.foreground(75, 230, 255));
     sb.append(":");
     sb.append(location, AttributedStyle.DEFAULT.foreground(75, 230, 255));
     sb.append("> ", AttributedStyle.DEFAULT.foreground(75, 230, 255));
@@ -94,11 +95,11 @@ public abstract class Layer implements Command {
   public void enterLayer() {
 
     Completer oldCompleter = null;
-    if (Context.get().getLineReader() instanceof LineReaderImpl lineReaderImpl) {
+    if (Session.get().getLineReader() instanceof LineReaderImpl lineReaderImpl) {
       oldCompleter = lineReaderImpl.getCompleter();
       lineReaderImpl.setCompleter(getCompleter());
     }
-    LineReader lineReader = Context.get().getLineReader();
+    LineReader lineReader = Session.get().getLineReader();
     while (true) {
       try {
         String line =
@@ -114,6 +115,11 @@ public abstract class Layer implements Command {
       } catch (UserInterruptException e) {
       } catch (ShellExitFlag e) {
         break;
+      } catch (Exception e) {
+        if (e instanceof AbstractFlag) {
+          throw e;
+        }
+        Session.logException(e);
       }
     }
     if (lineReader instanceof LineReaderImpl lineReaderImpl) {
@@ -169,7 +175,7 @@ public abstract class Layer implements Command {
 
     // No command found. Maybe return something
     if (commandOptional.isEmpty()) {
-      Context.get().getTerminal().writer().println("Command Not Found");
+      Session.out().println("Command Not Found");
       return shellReturnType;
     }
 
