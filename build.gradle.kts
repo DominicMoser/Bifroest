@@ -4,15 +4,13 @@
  * This generated file contains a sample Java library project to get you started.
  * For more details on building Java & JVM projects, please refer to https://docs.gradle.org/9.2.1/userguide/building_java_projects.html in the Gradle documentation.
  */
-
 group = "com.dmoser.codyssey"
 version = project.findProperty("version") ?: error("Version must be provided via -Pversion")
-if (version == "unspecified") {
-    val gitTag = System.getenv("VERSION")
-    if (!gitTag.isNullOrBlank()) {
-        version = gitTag
-    }
+if (System.getenv("JITPACK") == "TRUE") {
+    group = project.findProperty("group") ?: error("group must be provided for JitPack builds")
+    version = System.getenv("VERSION");
 }
+
 val buildConfigClassName = project.name.replaceFirstChar { it.uppercase() } + "BuildConfig"
 val defaultSshPort: String by project
 val defaultShellName: String by project
@@ -67,6 +65,18 @@ tasks.jar {
                     "${project.group}.${project.name}"
                         .replace('-', '.')
         )
+    }
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            from(components["java"])
+
+            groupId = project.group.toString()
+            artifactId = project.name
+            version = project.version.toString()
+        }
     }
 }
 
