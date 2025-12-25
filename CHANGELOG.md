@@ -1,3 +1,12 @@
+# [1.3.0](https://github.com/DominicMoser/Bifroest/compare/v1.2.1...v1.3.0) (2025-12-25)
+
+
+### Features
+
+* add LsCommand ([a3b7056](https://github.com/DominicMoser/Bifroest/commit/a3b7056b2f08000b41ed9e5c8e2d445453f6cdae))
+* add SimpleCommand for easier usage ([db0e7e9](https://github.com/DominicMoser/Bifroest/commit/db0e7e952c9bc40325d3f4a2cdf9347aca468b78))
+* split Context into Session and AppConfig ([210c964](https://github.com/DominicMoser/Bifroest/commit/210c9646bfcdaf6ed2c04e68040e581a12b1410a))
+
 ## [1.2.1](https://github.com/DominicMoser/Bifroest/compare/v1.2.0...v1.2.1) (2025-12-24)
 
 
