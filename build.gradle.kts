@@ -7,6 +7,12 @@
 
 group = "com.dmoser.codyssey"
 version = project.findProperty("version") ?: error("Version must be provided via -Pversion")
+if (version == "unspecified") {
+    val gitTag = System.getenv("VERSION")
+    if (!gitTag.isNullOrBlank()) {
+        version = gitTag
+    }
+}
 val buildConfigClassName = project.name.replaceFirstChar { it.uppercase() } + "BuildConfig"
 val defaultSshPort: String by project
 val defaultShellName: String by project
