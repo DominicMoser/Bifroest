@@ -1,3 +1,10 @@
+## [1.3.2](https://github.com/DominicMoser/Bifroest/compare/v1.3.1...v1.3.2) (2025-12-25)
+
+
+### Bug Fixes
+
+* add dynamic groupid for jitpack ([3ae01cd](https://github.com/DominicMoser/Bifroest/commit/3ae01cd9e272b53e66e5e6bc586f0a0124c0ea06))
+
 ## [1.3.1](https://github.com/DominicMoser/Bifroest/compare/v1.3.0...v1.3.1) (2025-12-25)
 
 
