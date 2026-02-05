@@ -3,9 +3,11 @@ package com.dmoser.codyssey.bifroest.layers;
 import static org.jline.builtins.Completers.TreeCompleter.node;
 
 import com.dmoser.codyssey.bifroest.commands.*;
-import com.dmoser.codyssey.bifroest.enums.ExecutionSource;
 import com.dmoser.codyssey.bifroest.flags.AbstractFlag;
 import com.dmoser.codyssey.bifroest.flags.ShellExitFlag;
+import com.dmoser.codyssey.bifroest.returns.CommandReturn;
+import com.dmoser.codyssey.bifroest.returns.ReturnStatus;
+import com.dmoser.codyssey.bifroest.returns.RoutingFlag;
 import com.dmoser.codyssey.bifroest.session.Session;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -128,7 +130,7 @@ public abstract class Layer implements Command {
   }
 
   @Override
-  public ExecutionSource execute(Layer parent, List<String> command) {
+  public CommandReturn execute(Layer parent, List<String> command) {
     parentName = parent == null ? "" : parent.getLocation();
     if (command.isEmpty()) {
       throw new RuntimeException("Command should never be null");
@@ -142,11 +144,11 @@ public abstract class Layer implements Command {
     // When the command size is only 1 that means that this shell is called.
     command.removeFirst();
 
-    if (command.isEmpty() || executeCommand(command, false) == ExecutionSource.LAYER) {
+    if (command.isEmpty() || executeCommand(command, false) == RoutingFlag.REMAIN) {
       enterLayer();
-      return ExecutionSource.LAYER;
+      return new CommandReturn(RoutingFlag.REMAIN, ReturnStatus.SUCCESS, null);
     }
-    return ExecutionSource.COMMAND;
+    return new CommandReturn(RoutingFlag.RETURN, ReturnStatus.SUCCESS, null);
   }
 
   private boolean matchKey(String key, String command) {
@@ -154,10 +156,9 @@ public abstract class Layer implements Command {
     return p.matcher(command).matches();
   }
 
-  protected ExecutionSource executeCommand(List<String> command, boolean calledInShell) {
+  protected RoutingFlag executeCommand(List<String> command, boolean calledInShell) {
 
-    ExecutionSource shellReturnType =
-        calledInShell ? ExecutionSource.LAYER : ExecutionSource.COMMAND;
+    RoutingFlag shellReturnType = calledInShell ? RoutingFlag.REMAIN : RoutingFlag.RETURN;
 
     // Look for matching command.
 
@@ -181,12 +182,16 @@ public abstract class Layer implements Command {
 
     Command shellCommand = commandOptional.get();
 
-    ExecutionSource commandReturnType = shellCommand.execute(this, command);
+    CommandReturn commandReturn = shellCommand.execute(this, command);
 
-    if (shellReturnType == ExecutionSource.LAYER) {
-      return ExecutionSource.LAYER;
+    if (commandReturn.value() != null) {
+      Session.out().println(commandReturn.value());
     }
-    return commandReturnType;
+
+    if (shellReturnType == RoutingFlag.REMAIN) {
+      return RoutingFlag.REMAIN;
+    }
+    return commandReturn.routingFlag();
   }
 
   protected boolean checkForPath(List<String> path) {

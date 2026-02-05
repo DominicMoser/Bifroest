@@ -1,11 +1,11 @@
 package com.dmoser.codyssey.bifroest;
 
 import com.dmoser.codyssey.bifroest.banner.DefaultBifroestBanner;
+import com.dmoser.codyssey.bifroest.example.customers.CustomerLayer;
 import com.dmoser.codyssey.bifroest.layers.Layer;
 import com.dmoser.codyssey.bifroest.layers.RootShell;
 import com.dmoser.codyssey.bifroest.runners.TerminalRunner;
 import com.dmoser.codyssey.bifroest.session.AppConfig;
-import com.dmoser.codyssey.bifroest.session.Session;
 import java.util.Random;
 
 /**
@@ -19,6 +19,7 @@ public class Example extends RootShell {
   public Example() {
     super();
     addCommand(new Dice());
+    addCommand(new CustomerLayer());
   }
 
   /** Main entry point for the example application. Starts the SSH CLI server. */
@@ -40,17 +41,12 @@ public class Example extends RootShell {
     protected Dice() {
       super("dice");
 
-      addCommand("d2", (params) -> Session.out().println(new Random().nextInt(1, 3)));
-      addCommand("d4", (params) -> Session.out().println(new Random().nextInt(1, 5)));
-      addCommand("d6", (params) -> Session.out().println(new Random().nextInt(1, 7)));
-      addCommand("d10", (params) -> Session.out().println(new Random().nextInt(1, 11)));
-      addCommand("d100", (params) -> Session.out().println(new Random().nextInt(1, 101)));
-      addCommand(
-          "r",
-          (params) -> {
-            params.forEach(p -> Session.out().println(p));
-            Session.out().println(new Random().nextInt(1, Integer.parseInt(params.getLast())));
-          });
+      addCommand("d2", (params) -> new Random().nextInt(1, 3));
+      addCommand("d4", (params) -> new Random().nextInt(1, 5));
+      addCommand("d6", (params) -> new Random().nextInt(1, 7));
+      addCommand("d10", (params) -> new Random().nextInt(1, 11));
+      addCommand("d100", (params) -> new Random().nextInt(1, 101));
+      addCommand("r", (params) -> new Random().nextInt(1, Integer.parseInt(params.getLast())));
     }
   }
 }

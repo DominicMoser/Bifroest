@@ -1,0 +1,373 @@
+[File: /home/dominic/git/codyssey/bifroest/src/main/java/com/dmoser/codyssey/bifroest/CommandReturn.java (6 lines total)]
+1:package com.dmoser.codyssey.bifroest;
+2:
+3:import com.dmoser.codyssey.bifroest.returns.RoutingFlag;
+4:
+5:public record CommandReturn(RoutingFlag executionReturn, Object value) {}
+6:
+
+
+-------------------------------------------------
+
+[File: /home/dominic/git/codyssey/bifroest/src/main/java/com/dmoser/codyssey/bifroest/commands/ClearCommand.java (37 lines total)]
+1:package com.dmoser.codyssey.bifroest.commands;
+2:
+3:import static org.jline.builtins.Completers.TreeCompleter.node;
+4:
+5:import com.dmoser.codyssey.bifroest.returns.RoutingFlag;
+6:import com.dmoser.codyssey.bifroest.layers.Layer;
+7:import com.dmoser.codyssey.bifroest.session.Session;
+8:import java.util.List;
+9:import org.jline.builtins.Completers;
+10:import org.jline.terminal.Terminal;
+11:import org.jline.utils.InfoCmp;
+12:
+13:public class ClearCommand implements Command {
+14:  @Override
+15:  public String getNameRegex() {
+16:    return "(^clear$)|(^cl$)";
+17:  }
+18:
+19:  @Override
+20:  public RoutingFlag execute(Layer parent, List<String> command) {
+21:    Terminal terminal = Session.get().getTerminal();
+22:    terminal.puts(InfoCmp.Capability.clear_screen);
+23:    terminal.flush();
+24:    return null;
+25:  }
+(12 more lines below)
+
+
+-------------------------------------------------
+
+[File: /home/dominic/git/codyssey/bifroest/src/main/java/com/dmoser/codyssey/bifroest/commands/Command.java (24 lines total)]
+1:package com.dmoser.codyssey.bifroest.commands;
+2:
+3:import static org.jline.builtins.Completers.TreeCompleter.node;
+4:
+5:import com.dmoser.codyssey.bifroest.returns.RoutingFlag;
+6:import com.dmoser.codyssey.bifroest.layers.Layer;
+7:import java.util.List;
+8:import org.jline.builtins.Completers;
+9:
+10:public interface Command {
+11:
+12:  default String getNameRegex() {
+13:    return "^" + getName() + "$";
+14:  }
+15:
+16:  RoutingFlag execute(Layer parent, List<String> command);
+17:
+18:  default Completers.TreeCompleter.Node getCompleterNode() {
+19:    return node(getName());
+20:  }
+21:
+(3 more lines below)
+
+
+-------------------------------------------------
+
+[File: /home/dominic/git/codyssey/bifroest/src/main/java/com/dmoser/codyssey/bifroest/commands/ExitCommand.java (26 lines total)]
+1:package com.dmoser.codyssey.bifroest.commands;
+2:
+3:import com.dmoser.codyssey.bifroest.returns.RoutingFlag;
+4:import com.dmoser.codyssey.bifroest.flags.Flags;
+5:import com.dmoser.codyssey.bifroest.layers.Layer;
+6:import java.util.List;
+7:
+8:/**
+9: * Command used to exit the current session.
+10: *
+11: * <p>When executed, this command throws a {@link com.dmoser.codyssey.bifroest.flags.SystemExitFlag}
+12: * (via {@link Flags#SYSTEM_EXIT_FLAG}) to signal that the entire CLI session should be terminated.
+13: */
+14:public class ExitCommand implements Command {
+15:
+16:  @Override
+17:  public RoutingFlag execute(Layer parent, List<String> command) {
+18:    throw Flags.SYSTEM_EXIT_FLAG;
+19:  }
+20:
+21:  @Override
+22:  public String getName() {
+(4 more lines below)
+
+
+-------------------------------------------------
+
+[File: /home/dominic/git/codyssey/bifroest/src/main/java/com/dmoser/codyssey/bifroest/commands/LsCommand.java (23 lines total)]
+1:package com.dmoser.codyssey.bifroest.commands;
+2:
+3:import com.dmoser.codyssey.bifroest.returns.RoutingFlag;
+4:import com.dmoser.codyssey.bifroest.layers.Layer;
+5:import com.dmoser.codyssey.bifroest.session.Session;
+6:import java.util.List;
+7:import java.util.stream.Collectors;
+8:
+9:public class LsCommand implements Command {
+10:
+11:  @Override
+12:  public RoutingFlag execute(Layer parent, List<String> command) {
+13:    String lsOutput = parent.getCommandNames().stream().collect(Collectors.joining(",", "[", "]"));
+14:    Session.out().println(lsOutput);
+15:    return RoutingFlag.RETURN;
+16:  }
+17:
+18:  @Override
+19:  public String getName() {
+20:    return "ls";
+21:  }
+22:}
+(1 more lines below)
+
+
+-------------------------------------------------
+
+[File: /home/dominic/git/codyssey/bifroest/src/main/java/com/dmoser/codyssey/bifroest/commands/NavigationCommand.java (49 lines total)]
+1:package com.dmoser.codyssey.bifroest.commands;
+2:
+3:import static org.jline.builtins.Completers.TreeCompleter.node;
+4:
+5:import com.dmoser.codyssey.bifroest.returns.RoutingFlag;
+6:import com.dmoser.codyssey.bifroest.flags.ShellNavigationFlag;
+7:import com.dmoser.codyssey.bifroest.layers.Layer;
+8:import java.util.Arrays;
+9:import java.util.List;
+10:import org.jline.builtins.Completers;
+11:
+12:/**
+13: * Command used to navigate between different shell layers.
+14: *
+15: * <p>This command matches path-like patterns and triggers navigation by throwing a {@link
+16: * ShellNavigationFlag} with the calculated target and origin paths.
+17: */
+18:public class NavigationCommand implements Command {
+19:
+20:  @Override
+21:  public String getNameRegex() {
+22:    return "^(/?\\w+)?((/\\w+)+)/?$|^(\\w*/)$";
+23:  }
+24:
+25:  @Override
+26:  public RoutingFlag execute(Layer parent, List<String> command) {
+27:
+28:    String path = command.getFirst();
+29:    if (!path.startsWith("/")) {
+30:      path = parent.getLocation() + "/" + path;
+31:    }
+(18 more lines below)
+
+
+-------------------------------------------------
+
+[File: /home/dominic/git/codyssey/bifroest/src/main/java/com/dmoser/codyssey/bifroest/commands/SimpleCommandContainer.java (45 lines total)]
+1:package com.dmoser.codyssey.bifroest.commands;
+2:
+3:import static org.jline.builtins.Completers.TreeCompleter.node;
+4:
+5:import com.dmoser.codyssey.bifroest.returns.RoutingFlag;
+6:import com.dmoser.codyssey.bifroest.layers.Layer;
+7:import java.util.ArrayList;
+8:import java.util.List;
+9:import org.jline.builtins.Completers;
+10:
+11:public class SimpleCommandContainer implements Command {
+12:
+13:  private final String name;
+14:  private final SimpleCommand simpleCommand;
+15:
+16:  public SimpleCommandContainer(String name, SimpleCommand simpleCommand) {
+17:    this.name = name;
+18:    this.simpleCommand = simpleCommand;
+19:  }
+20:
+21:  @Override
+22:  public String getNameRegex() {
+23:    return "^" + name + "$";
+24:  }
+25:
+26:  @Override
+27:  public RoutingFlag execute(Layer parent, List<String> command) {
+28:    List<String> params = new ArrayList<>(command);
+29:    params.removeFirst();
+30:    simpleCommand.execute(params);
+31:
+32:    return RoutingFlag.RETURN;
+33:  }
+34:
+35:  @Override
+36:  public Completers.TreeCompleter.Node getCompleterNode() {
+37:    return node(this.name);
+(8 more lines below)
+
+
+-------------------------------------------------
+
+[File: /home/dominic/git/codyssey/bifroest/src/main/java/com/dmoser/codyssey/bifroest/commands/UpCommand.java (39 lines total)]
+1:package com.dmoser.codyssey.bifroest.commands;
+2:
+3:import static org.jline.builtins.Completers.TreeCompleter.node;
+4:
+5:import com.dmoser.codyssey.bifroest.returns.RoutingFlag;
+6:import com.dmoser.codyssey.bifroest.flags.Flags;
+7:import com.dmoser.codyssey.bifroest.layers.Layer;
+8:import java.util.List;
+9:import org.jline.builtins.Completers;
+10:
+11:/**
+12: * A default command that exists in every layer, used to navigate up one shell layer.
+13: *
+14: * <p>This command can be triggered by either "up" or ".." and works by throwing a {@link
+15: * com.dmoser.codyssey.bifroest.flags.ShellExitFlag}.
+16: */
+17:public class UpCommand implements Command {
+18:
+19:  @Override
+20:  public String getNameRegex() {
+21:    return "(^\\.\\.$)|(^up$)";
+22:  }
+23:
+24:  @Override
+25:  public RoutingFlag execute(Layer parent, List<String> command) {
+26:    throw Flags.SHELL_EXIT_FLAG;
+27:  }
+28:
+29:  @Override
+30:  public Completers.TreeCompleter.Node getCompleterNode() {
+(9 more lines below)
+
+
+-------------------------------------------------
+
+[File: /home/dominic/git/codyssey/bifroest/src/main/java/com/dmoser/codyssey/bifroest/enums/RoutingFlag.java (14 lines total)]
+1:package com.dmoser.codyssey.bifroest.enums;
+2:
+3:/** Enum used to indicate the navigation behavior after a command execution. */
+4:public enum RoutingFlag {
+5:  /** Indicates that the user should remain in the current (deepest) layer after execution. */
+6:  REMAIN,
+7:
+8:  /**
+9:   * Indicates that the user should return to the layer where the command was originally called
+(5 more lines below)
+
+
+-------------------------------------------------
+
+[File: /home/dominic/git/codyssey/bifroest/src/main/java/com/dmoser/codyssey/bifroest/layers/Layer.java (215 lines total)]
+1:package com.dmoser.codyssey.bifroest.layers;
+2:
+3:import static org.jline.builtins.Completers.TreeCompleter.node;
+4:
+5:import com.dmoser.codyssey.bifroest.commands.*;
+6:import com.dmoser.codyssey.bifroest.returns.RoutingFlag;
+7:import com.dmoser.codyssey.bifroest.flags.AbstractFlag;
+8:import com.dmoser.codyssey.bifroest.flags.ShellExitFlag;
+9:import com.dmoser.codyssey.bifroest.session.Session;
+10:import java.util.ArrayList;
+11:import java.util.LinkedList;
+12:import java.util.List;
+13:import java.util.Optional;
+14:import java.util.regex.Pattern;
+15:import java.util.stream.Stream;
+16:import org.jline.builtins.Completers;
+
+...
+
+121:        }
+122:        Session.logException(e);
+123:      }
+124:    }
+125:    if (lineReader instanceof LineReaderImpl lineReaderImpl) {
+126:      lineReaderImpl.setCompleter(oldCompleter);
+127:    }
+128:  }
+129:
+130:  @Override
+131:  public RoutingFlag execute(Layer parent, List<String> command) {
+132:    parentName = parent == null ? "" : parent.getLocation();
+133:    if (command.isEmpty()) {
+134:      throw new RuntimeException("Command should never be null");
+135:    }
+136:
+137:    // When the calling command does not match the name regex, then something weird happended.
+138:    if (!(command.getFirst().matches(getNameRegex()))) {
+139:      throw new RuntimeException("A command should always be called by a qualified name");
+140:    }
+141:
+142:    // When the command size is only 1 that means that this shell is called.
+143:    command.removeFirst();
+144:
+145:    if (command.isEmpty() || executeCommand(command, false) == RoutingFlag.REMAIN) {
+146:      enterLayer();
+147:      return RoutingFlag.REMAIN;
+148:    }
+149:    return RoutingFlag.RETURN;
+150:  }
+151:
+152:  private boolean matchKey(String key, String command) {
+153:    Pattern p = Pattern.compile(key);
+154:    return p.matcher(command).matches();
+155:  }
+156:
+157:  protected RoutingFlag executeCommand(List<String> command, boolean calledInShell) {
+158:
+159:    RoutingFlag shellReturnType = calledInShell ? RoutingFlag.REMAIN : RoutingFlag.RETURN;
+160:
+161:    // Look for matching command.
+162:
+163:    Optional<Command> commandOptional =
+164:        commandList.stream()
+165:            .filter(cmd -> matchKey(cmd.getNameRegex(), command.getFirst().trim()))
+166:            .findFirst();
+167:
+168:    if (commandOptional.isEmpty()) {
+169:      commandOptional =
+170:          defaultCommandList.stream()
+171:              .filter(cmd -> matchKey(cmd.getNameRegex(), command.getFirst().trim()))
+172:              .findFirst();
+173:    }
+174:
+175:    // No command found. Maybe return something
+176:    if (commandOptional.isEmpty()) {
+177:      Session.out().println("Command Not Found");
+178:      return shellReturnType;
+179:    }
+180:
+181:    Command shellCommand = commandOptional.get();
+182:
+183:    RoutingFlag commandReturnType = shellCommand.execute(this, command);
+184:
+185:    if (shellReturnType == RoutingFlag.REMAIN) {
+186:      return RoutingFlag.REMAIN;
+187:    }
+188:    return commandReturnType;
+189:  }
+190:
+191:  protected boolean checkForPath(List<String> path) {
+192:    // We are in this one.
+193:    if (path.isEmpty()) {
+194:      return true;
+(21 more lines below)
+
+
+-------------------------------------------------
+
+[File: /home/dominic/git/codyssey/bifroest/src/main/java/com/dmoser/codyssey/bifroest/layers/Layer.java (215 lines total)]
+(153 more lines above)
+154:    return p.matcher(command).matches();
+155:  }
+156:
+157:  protected RoutingFlag executeCommand(List<String> command, boolean calledInShell) {
+158:
+159:    RoutingFlag shellReturnType = calledInShell ? RoutingFlag.REMAIN : RoutingFlag.RETURN;
+160:
+161:    // Look for matching command.
+162:
+163:    Optional<Command> commandOptional =
+164:        commandList.stream()
+(51 more lines below)
+
+
+-------------------------------------------------
+
