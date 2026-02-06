@@ -1,7 +1,11 @@
 package com.dmoser.codyssey.bifroest.session;
 
 import com.dmoser.codyssey.bifroest.banner.Banner;
+import com.dmoser.codyssey.bifroest.forms.Form;
+import com.dmoser.codyssey.bifroest.forms.FormReader;
+import com.dmoser.codyssey.bifroest.forms.LineReaderFormReader;
 import java.io.PrintWriter;
+import java.util.Map;
 import org.jline.reader.LineReader;
 import org.jline.terminal.Terminal;
 
@@ -12,11 +16,13 @@ public class Session {
   private final String name;
   private final LineReader lineReader;
   private final Banner banner;
+  private final FormReader formReader;
 
-  private Session(String name, LineReader lineReader, Banner banner) {
+  private Session(String name, LineReader lineReader, Banner banner, FormReader formReader) {
     this.name = name;
     this.lineReader = lineReader;
     this.banner = banner;
+    this.formReader = formReader;
   }
 
   public static SetNameStep create() {
@@ -47,6 +53,15 @@ public class Session {
     e.printStackTrace();
   }
 
+  public static Object submitForm(Form<?> form) {
+    Map<String, String> formElements = get().formReader.fillFormElements(form.getFormParameters());
+    return form.submit(formElements);
+  }
+
+  public static LineReader in() {
+    return get().lineReader;
+  }
+
   public PrintWriter writer() {
     return Session.get().getTerminal().writer();
   }
@@ -55,9 +70,9 @@ public class Session {
     return banner;
   }
 
-  public LineReader getLineReader() {
-    return lineReader;
-  }
+  // public LineReader getLineReader() {
+  //    return lineReader;
+  // }
 
   public Terminal getTerminal() {
     return lineReader.getTerminal();
@@ -65,6 +80,10 @@ public class Session {
 
   public String getName() {
     return name;
+  }
+
+  public LineReader getLineReader() {
+    return lineReader;
   }
 
   public interface SetNameStep {
@@ -80,6 +99,8 @@ public class Session {
   }
 
   public interface SetOptionalsStep {
+    SetOptionalsStep andFormReader(FormReader formReader);
+
     Session open();
   }
 
@@ -88,6 +109,7 @@ public class Session {
     String name;
     Banner banner;
     LineReader lineReader;
+    FormReader formReader = new LineReaderFormReader();
 
     @Override
     public SetOptionalsStep andBanner(Banner banner) {
@@ -108,8 +130,14 @@ public class Session {
     }
 
     @Override
+    public SetOptionalsStep andFormReader(FormReader formReader) {
+      this.formReader = formReader;
+      return this;
+    }
+
+    @Override
     public Session open() {
-      Session newSession = new Session(name, lineReader, banner);
+      Session newSession = new Session(name, lineReader, banner, formReader);
       SESSION.set(newSession);
       return Session.get();
     }

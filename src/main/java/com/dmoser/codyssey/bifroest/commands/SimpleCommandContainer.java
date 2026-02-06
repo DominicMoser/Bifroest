@@ -2,8 +2,10 @@ package com.dmoser.codyssey.bifroest.commands;
 
 import static org.jline.builtins.Completers.TreeCompleter.node;
 
-import com.dmoser.codyssey.bifroest.enums.ExecutionSource;
 import com.dmoser.codyssey.bifroest.layers.Layer;
+import com.dmoser.codyssey.bifroest.returns.CommandReturn;
+import com.dmoser.codyssey.bifroest.returns.ReturnStatus;
+import com.dmoser.codyssey.bifroest.returns.RoutingFlag;
 import java.util.ArrayList;
 import java.util.List;
 import org.jline.builtins.Completers;
@@ -24,12 +26,14 @@ public class SimpleCommandContainer implements Command {
   }
 
   @Override
-  public ExecutionSource execute(Layer parent, List<String> command) {
+  public CommandReturn execute(Layer parent, List<String> command) {
     List<String> params = new ArrayList<>(command);
     params.removeFirst();
-    simpleCommand.execute(params);
-
-    return ExecutionSource.COMMAND;
+    Object returnValue = simpleCommand.execute(params);
+    if (returnValue instanceof ReturnStatus.Failure failure) {
+      return new CommandReturn(RoutingFlag.RETURN, failure, null);
+    }
+    return new CommandReturn(RoutingFlag.RETURN, ReturnStatus.SUCCESS, returnValue);
   }
 
   @Override

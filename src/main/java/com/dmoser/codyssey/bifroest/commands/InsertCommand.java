@@ -1,6 +1,7 @@
 package com.dmoser.codyssey.bifroest.commands;
 
 import com.dmoser.codyssey.bifroest.forms.Form;
+import com.dmoser.codyssey.bifroest.session.Session;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -15,19 +16,7 @@ public class InsertCommand<T> implements SimpleCommand {
 
   protected final Consumer<T> target;
   protected final Supplier<Form<T>> formSupplier;
-  private Form<T> form = null;
-
-  /**
-   * Constructs an {@code InsertCommand} with a pre-built form.
-   *
-   * @param target the consumer that will receive the submitted object
-   * @param form the form to use for data entry
-   */
-  public InsertCommand(Consumer<T> target, Form<T> form) {
-    this.target = target;
-    this.formSupplier = null;
-    this.form = form;
-  }
+  protected Form<T> form;
 
   /**
    * Constructs an {@code InsertCommand} with a supplier for lazy form initialization.
@@ -53,11 +42,17 @@ public class InsertCommand<T> implements SimpleCommand {
   }
 
   @Override
-  public void execute(List<String> params) {
+  public Object execute(List<String> params) {
     if (form == null) {
       form = formSupplier.get();
     }
-    T object = form.submit();
-    target.accept(object);
+    try {
+      @SuppressWarnings("unchecked")
+      T object = (T) Session.submitForm(form);
+      target.accept(object);
+      return null;
+    } catch (Exception e) {
+      throw new AssertionError();
+    }
   }
 }

@@ -1,18 +1,28 @@
 package com.dmoser.codyssey.bifroest.forms;
 
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.Arrays;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Represents a data entry mechanism for a specific type {@code T}.
  *
  * @param <T> the type of object produced by this form
  */
-public interface Form<T> {
+public abstract class Form<T> {
+
+  List<FormParameter> formParameterList = new ArrayList<>();
+
+  public Form(FormParameter first, FormParameter... formParameters) {
+    formParameterList.add(first);
+    formParameterList.addAll(Arrays.asList(formParameters));
+  }
+
+  public Form(String firstFormParameter, String... formParameters) {
+    formParameterList.add(new FormParameter(firstFormParameter));
+    formParameterList.addAll(Arrays.stream(formParameters).map(FormParameter::new).toList());
+  }
 
   /**
    * Attempts to find and instantiate a form for the given class. It searches for a method annotated
@@ -22,7 +32,7 @@ public interface Form<T> {
    * @param <FormType> the type of the object the form handles
    * @return a {@link Form} instance if found, otherwise {@code null}
    */
-  static <FormType> Form<FormType> getForm(Class<FormType> dtoClass) {
+  public static <FormType> Form<FormType> getForm(Class<FormType> dtoClass) {
     Optional<Form<FormType>> formOptional = getByAnnotation(dtoClass);
     return formOptional.orElse(null);
   }
@@ -68,5 +78,9 @@ public interface Form<T> {
    *
    * @return the created or updated object
    */
-  T submit();
+  public abstract T submit(Map<String, String> formElements);
+
+  public List<FormParameter> getFormParameters() {
+    return new ArrayList<>(formParameterList);
+  }
 }

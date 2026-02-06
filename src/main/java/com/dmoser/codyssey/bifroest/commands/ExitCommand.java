@@ -1,9 +1,8 @@
 package com.dmoser.codyssey.bifroest.commands;
 
-
-import com.dmoser.codyssey.bifroest.enums.ExecutionSource;
 import com.dmoser.codyssey.bifroest.flags.Flags;
 import com.dmoser.codyssey.bifroest.layers.Layer;
+import com.dmoser.codyssey.bifroest.returns.CommandReturn;
 import java.util.List;
 
 /**
@@ -15,7 +14,7 @@ import java.util.List;
 public class ExitCommand implements Command {
 
   @Override
-  public ExecutionSource execute(Layer parent, List<String> command) {
+  public CommandReturn execute(Layer parent, List<String> command) {
     throw Flags.SYSTEM_EXIT_FLAG;
   }
 

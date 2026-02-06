@@ -11,16 +11,20 @@ public abstract class AbstractRunner {
 
   public void run() {
     init();
+    initSession();
     start();
     stop();
   }
 
-  protected void init() {
+  protected void initSession() {
     Session.create()
         .withName(getName())
         .andLineReader(getLineReader())
         .andBanner(getBanner())
         .open();
+  }
+
+  protected void init() {
     System.setProperty("org.jline.terminal.jansi", "false");
   }
 
