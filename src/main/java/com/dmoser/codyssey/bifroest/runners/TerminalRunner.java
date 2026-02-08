@@ -2,111 +2,121 @@ package com.dmoser.codyssey.bifroest.runners;
 
 import com.dmoser.codyssey.bifroest.banner.Banner;
 import com.dmoser.codyssey.bifroest.banner.SimpleContextNameBanner;
-import com.dmoser.codyssey.bifroest.layers.RootShell;
-import java.io.IOException;
-import org.jline.reader.LineReader;
-import org.jline.reader.LineReaderBuilder;
-import org.jline.reader.impl.completer.ArgumentCompleter;
-import org.jline.reader.impl.completer.NullCompleter;
-import org.jline.reader.impl.completer.StringsCompleter;
-import org.jline.terminal.Terminal;
-import org.jline.terminal.TerminalBuilder;
+import com.dmoser.codyssey.bifroest.commands.ClearCommand;
+import com.dmoser.codyssey.bifroest.commands.ExitCommand;
+import com.dmoser.codyssey.bifroest.commands.NavigationCommand;
+import com.dmoser.codyssey.bifroest.io.Communication;
+import com.dmoser.codyssey.bifroest.io.Prompt;
+import com.dmoser.codyssey.bifroest.io.communications.TerminalCommunication;
+import com.dmoser.codyssey.bifroest.io.completer.Root;
+import com.dmoser.codyssey.bifroest.layers.NewLayer;
+import com.dmoser.codyssey.bifroest.session.Session;
+import java.util.regex.Pattern;
 
 public class TerminalRunner extends AbstractRunner {
 
-  RootShell rootShell;
-  Banner banner;
-  String name;
+  private String name;
+  private Banner banner;
 
-  private TerminalRunner(String name, RootShell rootShell, Banner banner) {
+  private TerminalRunner(String name, NewLayer rootLayer, Banner banner, Prompt prompt) {
+    super(rootLayer, prompt);
     this.banner = banner;
     this.name = name;
-    this.rootShell = rootShell;
   }
 
-  public static NameSetter builder() {
-    return new TerminalRunnerBuilder();
-  }
-
-  @Override
-  protected RootShell getRootShell() {
-    return this.rootShell;
+  public static TerminalRunner.NameSetter builder() {
+    return new TerminalRunner.TerminalRunnerBuilder();
   }
 
   @Override
-  protected LineReader getLineReader() {
-    try {
-      Terminal terminal = TerminalBuilder.builder().build();
-      // Create a line reader
-      LineReader reader =
-          LineReaderBuilder.builder()
-              .terminal(terminal)
-              .variable(LineReader.LIST_MAX, 50) // max tab completion candidates
-              .completer(
-                  new ArgumentCompleter(
-                      new StringsCompleter("exit", "help"), NullCompleter.INSTANCE))
-              .option(LineReader.Option.AUTO_LIST, true) // Automatically list options
-              .option(LineReader.Option.LIST_PACKED, true) // Display completions in a compact form
-              .option(LineReader.Option.AUTO_MENU, true) // Show menu automatically
-              .option(LineReader.Option.MENU_COMPLETE, true) // Cycle through completions
-              .build();
-      return reader;
-
-    } catch (IOException exception) {
-      throw new RuntimeException(exception);
-    }
+  protected void loadGlobalCommands() {
+    NavigationCommand navigationCommand = new NavigationCommand();
+    ClearCommand clearCommand = new ClearCommand();
+    ExitCommand exitCommand = new ExitCommand();
+    globalCommands.put(Pattern.compile(exitCommand.getRegex()), exitCommand);
+    globalCommands.put(Pattern.compile(clearCommand.getRegex()), clearCommand);
+    globalCommands.put(Pattern.compile(navigationCommand.getRegex()), navigationCommand);
   }
 
   @Override
-  protected Banner getBanner() {
-    return this.banner;
+  public void setCompleter() {
+    Root root = new Root(this.rootLayer.getCommandNames());
+    io().setCompleter(root);
   }
 
   @Override
-  protected String getName() {
-    return name;
+  protected void initSession() {
+
+    Communication communication = new TerminalCommunication();
+
+    Session.create()
+        .withName(this.name)
+        .andCommunication(communication)
+        .andBanner(this.banner)
+        .open();
+  }
+
+  @Override
+  protected void start() {
+    io().printBanner(this.banner);
+  }
+
+  @Override
+  protected void stop() {
+    Session.close();
   }
 
   public interface NameSetter {
-    RootShellSetter withName(String name);
+    TerminalRunner.RootLayerSetter withName(String name);
   }
 
-  public interface RootShellSetter {
-    OptionalFieldsSetter andRootShell(RootShell rootShell);
+  public interface RootLayerSetter {
+    TerminalRunner.OptionalFieldsSetter andRootShell(NewLayer rootLayer);
   }
 
   public interface OptionalFieldsSetter {
-    OptionalFieldsSetter andBanner(Banner banner);
+    TerminalRunner.OptionalFieldsSetter andBanner(Banner banner);
+
+    TerminalRunner.OptionalFieldsSetter andPrompt(Prompt prompt);
 
     TerminalRunner build();
   }
 
   private static class TerminalRunnerBuilder
-      implements RootShellSetter, NameSetter, OptionalFieldsSetter {
+      implements TerminalRunner.RootLayerSetter,
+          TerminalRunner.NameSetter,
+          TerminalRunner.OptionalFieldsSetter {
 
-    RootShell rootShell = null;
+    NewLayer rootLayer = null;
     String name = null;
     Banner banner = new SimpleContextNameBanner();
+    Prompt prompt = Prompt.DEFAULT;
 
     @Override
-    public OptionalFieldsSetter andBanner(Banner banner) {
+    public TerminalRunner.OptionalFieldsSetter andBanner(Banner banner) {
       this.banner = banner;
       return this;
     }
 
     @Override
-    public TerminalRunner build() {
-      return new TerminalRunner(name, rootShell, banner);
-    }
-
-    @Override
-    public OptionalFieldsSetter andRootShell(RootShell rootShell) {
-      this.rootShell = rootShell;
+    public OptionalFieldsSetter andPrompt(Prompt prompt) {
+      this.prompt = prompt;
       return this;
     }
 
     @Override
-    public RootShellSetter withName(String name) {
+    public TerminalRunner build() {
+      return new TerminalRunner(name, rootLayer, banner, prompt);
+    }
+
+    @Override
+    public TerminalRunner.OptionalFieldsSetter andRootShell(NewLayer rootLayer) {
+      this.rootLayer = rootLayer;
+      return this;
+    }
+
+    @Override
+    public TerminalRunner.RootLayerSetter withName(String name) {
       this.name = name;
       return this;
     }

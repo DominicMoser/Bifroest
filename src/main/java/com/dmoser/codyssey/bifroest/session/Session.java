@@ -4,7 +4,10 @@ import com.dmoser.codyssey.bifroest.banner.Banner;
 import com.dmoser.codyssey.bifroest.forms.Form;
 import com.dmoser.codyssey.bifroest.forms.FormReader;
 import com.dmoser.codyssey.bifroest.forms.LineReaderFormReader;
+import com.dmoser.codyssey.bifroest.io.Communication;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import org.jline.reader.LineReader;
 import org.jline.terminal.Terminal;
@@ -17,12 +20,16 @@ public class Session {
   private final LineReader lineReader;
   private final Banner banner;
   private final FormReader formReader;
+  private final Communication io;
+  List<String> currentPath = new ArrayList<>();
+  private boolean isRunning = true;
 
-  private Session(String name, LineReader lineReader, Banner banner, FormReader formReader) {
+  private Session(String name, Communication communication, Banner banner, FormReader formReader) {
     this.name = name;
-    this.lineReader = lineReader;
+    this.lineReader = null;
     this.banner = banner;
     this.formReader = formReader;
+    this.io = communication;
   }
 
   public static SetNameStep create() {
@@ -42,11 +49,16 @@ public class Session {
   }
 
   public static void close() {
+    io().close();
     SESSION.remove();
   }
 
   public static PrintWriter out() {
     return get().writer();
+  }
+
+  public static Communication io() {
+    return get().getIO();
   }
 
   public static void logException(Exception e) {
@@ -62,6 +74,14 @@ public class Session {
     return get().lineReader;
   }
 
+  public Communication getIO() {
+    return io;
+  }
+
+  // public LineReader getLineReader() {
+  //    return lineReader;
+  // }
+
   public PrintWriter writer() {
     return Session.get().getTerminal().writer();
   }
@@ -69,10 +89,6 @@ public class Session {
   public Banner getBanner() {
     return banner;
   }
-
-  // public LineReader getLineReader() {
-  //    return lineReader;
-  // }
 
   public Terminal getTerminal() {
     return lineReader.getTerminal();
@@ -83,19 +99,35 @@ public class Session {
   }
 
   public LineReader getLineReader() {
-    return lineReader;
+    return null;
+  }
+
+  public boolean isRunning() {
+    return isRunning;
+  }
+
+  public void stop() {
+    this.isRunning = false;
+  }
+
+  public List<String> getCurrentPath() {
+    return currentPath;
+  }
+
+  public void setCurrentPath(List<String> newPath) {
+    this.currentPath = newPath;
   }
 
   public interface SetNameStep {
-    SetLineReaderStep withName(String name);
+    SetCommunication withName(String name);
   }
 
   public interface SetBannerStep {
     SetOptionalsStep andBanner(Banner banner);
   }
 
-  public interface SetLineReaderStep {
-    SetBannerStep andLineReader(LineReader lineReader);
+  public interface SetCommunication {
+    SetBannerStep andCommunication(Communication communication);
   }
 
   public interface SetOptionalsStep {
@@ -105,10 +137,10 @@ public class Session {
   }
 
   public static class SessionBuilder
-      implements SetNameStep, SetBannerStep, SetLineReaderStep, SetOptionalsStep {
+      implements SetNameStep, SetBannerStep, SetCommunication, SetOptionalsStep {
     String name;
     Banner banner;
-    LineReader lineReader;
+    Communication communication;
     FormReader formReader = new LineReaderFormReader();
 
     @Override
@@ -118,13 +150,13 @@ public class Session {
     }
 
     @Override
-    public SetBannerStep andLineReader(LineReader lineReader) {
-      this.lineReader = lineReader;
+    public SetBannerStep andCommunication(Communication communication) {
+      this.communication = communication;
       return this;
     }
 
     @Override
-    public SetLineReaderStep withName(String name) {
+    public SetCommunication withName(String name) {
       this.name = name;
       return this;
     }
@@ -137,7 +169,7 @@ public class Session {
 
     @Override
     public Session open() {
-      Session newSession = new Session(name, lineReader, banner, formReader);
+      Session newSession = new Session(name, communication, banner, formReader);
       SESSION.set(newSession);
       return Session.get();
     }

@@ -1,8 +1,9 @@
 package com.dmoser.codyssey.bifroest.commands;
 
 import com.dmoser.codyssey.bifroest.forms.Form;
+import com.dmoser.codyssey.bifroest.io.Request;
+import com.dmoser.codyssey.bifroest.io.Result;
 import com.dmoser.codyssey.bifroest.session.Session;
-import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -12,7 +13,7 @@ import java.util.function.Supplier;
  *
  * @param <T> the type of object this command handles
  */
-public class InsertCommand<T> implements SimpleCommand {
+public class InsertCommand<T> implements Command {
 
   protected final Consumer<T> target;
   protected final Supplier<Form<T>> formSupplier;
@@ -42,7 +43,7 @@ public class InsertCommand<T> implements SimpleCommand {
   }
 
   @Override
-  public Object execute(List<String> params) {
+  public Result execute(Request request) {
     if (form == null) {
       form = formSupplier.get();
     }

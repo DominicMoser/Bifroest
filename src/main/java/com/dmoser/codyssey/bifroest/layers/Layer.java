@@ -1,79 +1,39 @@
 package com.dmoser.codyssey.bifroest.layers;
 
-import static org.jline.builtins.Completers.TreeCompleter.node;
-
 import com.dmoser.codyssey.bifroest.commands.*;
-import com.dmoser.codyssey.bifroest.flags.AbstractFlag;
-import com.dmoser.codyssey.bifroest.flags.ShellExitFlag;
-import com.dmoser.codyssey.bifroest.returns.CommandReturn;
-import com.dmoser.codyssey.bifroest.returns.ReturnStatus;
-import com.dmoser.codyssey.bifroest.returns.RoutingFlag;
-import com.dmoser.codyssey.bifroest.session.Session;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
-import org.jline.builtins.Completers;
-import org.jline.reader.Completer;
-import org.jline.reader.LineReader;
-import org.jline.reader.UserInterruptException;
-import org.jline.reader.impl.LineReaderImpl;
-import org.jline.utils.AttributedStringBuilder;
-import org.jline.utils.AttributedStyle;
 
-public abstract class Layer implements Command {
+public abstract class Layer implements NewLayer {
 
-  protected final String layerName;
-  protected List<Command> defaultCommandList = new ArrayList<>();
-  protected List<Command> commandList = new ArrayList<>();
-  protected String parentName = "";
+  private Map<Pattern, NewLayer> layers = new HashMap<>();
+  private Map<String, NewLayer> layerInfoMap = new HashMap<>();
 
-  protected Layer(String layerName) {
-    this.layerName = layerName;
-    defaultCommandList.add(new ExitCommand());
-    defaultCommandList.add(new NavigationCommand());
-    defaultCommandList.add(new UpCommand());
-    defaultCommandList.add(new ClearCommand());
-    defaultCommandList.add(new LsCommand());
+  private Map<Pattern, Command> commands = new HashMap<>();
+  private Map<String, Command> commandInfoMap = new HashMap<>();
+
+  protected Layer() {
+    addCommand(new LsCommand(this));
   }
 
-  public List<String> getCommandNames() {
-    return commandList.stream().map(Command::getName).toList();
-  }
-
-  public String generatePrompt() {
-    AttributedStringBuilder sb = new AttributedStringBuilder();
-    String location = getLocation();
-    if (!location.startsWith("/")) {
-      location = "/" + location;
-    }
-    sb.append(Session.get().getName(), AttributedStyle.DEFAULT.foreground(75, 230, 255));
-    sb.append(":");
-    sb.append(location, AttributedStyle.DEFAULT.foreground(75, 230, 255));
-    sb.append("> ", AttributedStyle.DEFAULT.foreground(75, 230, 255));
-
-    return sb.toAnsi();
-  }
-
-  public String getLocation() {
-    return parentName + "/" + layerName;
+  public Set<String> getCommandNames() {
+    return commandInfoMap.keySet();
   }
 
   @Override
-  public String getNameRegex() {
-    return "^" + layerName + "$";
+  public Set<String> getLayerNames() {
+    return layerInfoMap.keySet();
   }
 
+  /*
   public Completer getCompleter() {
     return new Completers.TreeCompleter(
         Stream.concat(commandList.stream(), defaultCommandList.stream())
             .map(Command::getCompleterNode)
             .toList()
             .toArray(Completers.TreeCompleter.Node[]::new));
-  }
-
+  }*/
+  /*
   @Override
   public Completers.TreeCompleter.Node getCompleterNode() {
 
@@ -84,137 +44,79 @@ public abstract class Layer implements Command {
             .map(Command::getCompleterNode)
             .toList());
     return node(obj.toArray());
+  }*/
+
+  public void addLayer(String name, NewLayer newLayer) {
+    addLayer(name, Pattern.compile(name), newLayer);
   }
 
-  public void addCommand(Command command) {
-    commandList.add(command);
+  public void addLayer(String name, Pattern layerPattern, NewLayer newLayer) {
+    if (this.layerInfoMap.containsKey(name)) {
+      // cant add another command with the same name.
+      return;
+    }
+    this.layerInfoMap.put(name, newLayer);
+    this.layers.put(layerPattern, newLayer);
   }
 
-  public void addCommand(String name, SimpleCommand simpleCommand) {
-    commandList.add(new SimpleCommandContainer(name, simpleCommand));
+  public void addCommand(ComplexCommand command) {
+    addCommand(command.getName(), Pattern.compile(command.getRegex()), command);
   }
 
-  public void enterLayer() {
+  public void addCommand(String name, Command command) {
+    addCommand(name, Pattern.compile("^" + name + "$"), command);
+  }
 
-    Completer oldCompleter = null;
-    if (Session.get().getLineReader() instanceof LineReaderImpl lineReaderImpl) {
-      oldCompleter = lineReaderImpl.getCompleter();
-      lineReaderImpl.setCompleter(getCompleter());
+  public void addCommand(String name, SimpleCommand command) {
+    addCommand(name, Pattern.compile("^" + name + "$"), command);
+  }
+
+  public void addCommand(String name, Pattern pattern, Command command) {
+    if (this.commandInfoMap.containsKey(name)) {
+      // cant add another command with the same name.
+      return;
     }
-    LineReader lineReader = Session.get().getLineReader();
-    while (true) {
-      try {
-        String line =
-            lineReader.readLine(
-                new AttributedStringBuilder()
-                    .ansiAppend(generatePrompt())
-                    .toAnsi(lineReader.getTerminal()));
-        var commandList = new ArrayList<>(lineReader.getParsedLine().words());
-        if (commandList.size() > 1 && commandList.getLast().isEmpty()) {
-          commandList.removeLast();
-        }
-        executeCommand(commandList, true);
-      } catch (UserInterruptException e) {
-      } catch (ShellExitFlag e) {
-        break;
-      } catch (Exception e) {
-        if (e instanceof AbstractFlag) {
-          throw e;
-        }
-        Session.logException(e);
-      }
-    }
-    if (lineReader instanceof LineReaderImpl lineReaderImpl) {
-      lineReaderImpl.setCompleter(oldCompleter);
-    }
+    this.commandInfoMap.put(name, command);
+    this.commands.put(pattern, command);
   }
 
   @Override
-  public CommandReturn execute(Layer parent, List<String> command) {
-    parentName = parent == null ? "" : parent.getLocation();
-    if (command.isEmpty()) {
-      throw new RuntimeException("Command should never be null");
+  public boolean hasLayer(String nameRegex) {
+    for (Map.Entry<Pattern, NewLayer> entry : layers.entrySet()) {
+      if (entry.getKey().matcher(nameRegex).matches()) {
+        return true;
+      }
     }
-
-    // When the calling command does not match the name regex, then something weird happended.
-    if (!(command.getFirst().matches(getNameRegex()))) {
-      throw new RuntimeException("A command should always be called by a qualified name");
-    }
-
-    // When the command size is only 1 that means that this shell is called.
-    command.removeFirst();
-
-    if (command.isEmpty() || executeCommand(command, false) == RoutingFlag.REMAIN) {
-      enterLayer();
-      return new CommandReturn(RoutingFlag.REMAIN, ReturnStatus.SUCCESS, null);
-    }
-    return new CommandReturn(RoutingFlag.RETURN, ReturnStatus.SUCCESS, null);
+    return false;
   }
 
-  private boolean matchKey(String key, String command) {
-    Pattern p = Pattern.compile(key);
-    return p.matcher(command).matches();
+  @Override
+  public NewLayer getLayer(String nameRegex) {
+    for (Map.Entry<Pattern, NewLayer> entry : layers.entrySet()) {
+      if (entry.getKey().matcher(nameRegex).matches()) {
+        return entry.getValue();
+      }
+    }
+    return null;
   }
 
-  protected RoutingFlag executeCommand(List<String> command, boolean calledInShell) {
-
-    RoutingFlag shellReturnType = calledInShell ? RoutingFlag.REMAIN : RoutingFlag.RETURN;
-
-    // Look for matching command.
-
-    Optional<Command> commandOptional =
-        commandList.stream()
-            .filter(cmd -> matchKey(cmd.getNameRegex(), command.getFirst().trim()))
-            .findFirst();
-
-    if (commandOptional.isEmpty()) {
-      commandOptional =
-          defaultCommandList.stream()
-              .filter(cmd -> matchKey(cmd.getNameRegex(), command.getFirst().trim()))
-              .findFirst();
+  @Override
+  public boolean hasCommand(String nameRegex) {
+    for (Map.Entry<Pattern, Command> entry : commands.entrySet()) {
+      if (entry.getKey().matcher(nameRegex).matches()) {
+        return true;
+      }
     }
-
-    // No command found. Maybe return something
-    if (commandOptional.isEmpty()) {
-      Session.out().println("Command Not Found");
-      return shellReturnType;
-    }
-
-    Command shellCommand = commandOptional.get();
-
-    CommandReturn commandReturn = shellCommand.execute(this, command);
-
-    if (commandReturn.value() != null) {
-      Session.out().println(commandReturn.value());
-    }
-
-    if (shellReturnType == RoutingFlag.REMAIN) {
-      return RoutingFlag.REMAIN;
-    }
-    return commandReturn.routingFlag();
+    return false;
   }
 
-  protected boolean checkForPath(List<String> path) {
-    // We are in this one.
-    if (path.isEmpty()) {
-      return true;
+  @Override
+  public Command getCommand(String nameRegex) {
+    for (Map.Entry<Pattern, Command> entry : commands.entrySet()) {
+      if (entry.getKey().matcher(nameRegex).matches()) {
+        return entry.getValue();
+      }
     }
-    path = new ArrayList<>(path);
-
-    String nextLayer = path.getFirst();
-    path.removeFirst();
-
-    List<String> finalPath = path;
-    return commandList.stream()
-        .filter(c -> c instanceof Layer)
-        .map(s -> (Layer) s)
-        .filter(s -> matchKey(s.getNameRegex(), nextLayer))
-        .map(s -> s.checkForPath(finalPath))
-        .findFirst()
-        .orElse(false);
-  }
-
-  public String getName() {
-    return this.layerName;
+    return null;
   }
 }
