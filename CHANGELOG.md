@@ -1,3 +1,23 @@
+# [2.0.0](https://github.com/DominicMoser/Bifroest/compare/v1.4.0...v2.0.0) (2026-02-09)
+
+
+* refactor(v2)!: change the way commands are handled. ([24671b7](https://github.com/DominicMoser/Bifroest/commit/24671b7553af94e276159356cb649071cf0dfe04))
+
+
+### Bug Fixes
+
+* update toolkit ([68c164a](https://github.com/DominicMoser/Bifroest/commit/68c164a4ee9270cb77ef32786035d12e025c36f1))
+
+
+### Features
+
+* add Forms ([a72b707](https://github.com/DominicMoser/Bifroest/commit/a72b70793294373bb1bc200a3df6d1f2c5fa5aa4))
+
+
+### BREAKING CHANGES
+
+* The whole system was refactored.
+
 # [1.4.0](https://github.com/DominicMoser/Bifroest/compare/v1.3.2...v1.4.0) (2025-12-25)
 
 
