@@ -4,13 +4,6 @@ import com.dmoser.codyssey.bifroest.io.Flag;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Utility class containing shared, reusable instances of CLI flags.
- *
- * <p>Since some {@link AbstractFlag} are stateless and their stack traces are not filled, these
- * constants can be reused across different layers and sessions to avoid unnecessary object
- * creation.
- */
 public final class Flags {
 
   public static final Flag EXIT_FLAG = new ExitFlag();
