@@ -1,3 +1,15 @@
+# [1.5.0](https://github.com/DominicMoser/Bifroest/compare/v1.4.0...v1.5.0) (2026-02-09)
+
+
+### Bug Fixes
+
+* update toolkit ([68c164a](https://github.com/DominicMoser/Bifroest/commit/68c164a4ee9270cb77ef32786035d12e025c36f1))
+
+
+### Features
+
+* add Forms ([a72b707](https://github.com/DominicMoser/Bifroest/commit/a72b70793294373bb1bc200a3df6d1f2c5fa5aa4))
+
 # [1.4.0](https://github.com/DominicMoser/Bifroest/compare/v1.3.2...v1.4.0) (2025-12-25)
 
 
