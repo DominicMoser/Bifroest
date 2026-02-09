@@ -1,7 +1,6 @@
 package com.dmoser.codyssey.bifroest.io;
 
-import com.dmoser.codyssey.bifroest.banner.Banner;
-import com.dmoser.codyssey.bifroest.io.completer.Root;
+import com.dmoser.codyssey.bifroest.io.completer.CompleterProvider;
 
 public interface Communication {
   Request getRequest(Prompt prompt);
@@ -16,5 +15,7 @@ public interface Communication {
 
   void clear();
 
-  void setCompleter(Root root);
+  void setCompleterProvider(CompleterProvider provider);
+
+  String getParam(String name, String formParamMsg);
 }

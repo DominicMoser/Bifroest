@@ -1,13 +1,13 @@
 package com.dmoser.codyssey.bifroest.example.customers;
 
-import com.dmoser.codyssey.bifroest.commands.InsertCommand;
 import com.dmoser.codyssey.bifroest.example.customers.dto.CustomerDTO;
 import com.dmoser.codyssey.bifroest.example.customers.dto.NewCustomerDTO;
-import com.dmoser.codyssey.bifroest.io.Response;
-import com.dmoser.codyssey.bifroest.layers.Layer;
+import com.dmoser.codyssey.bifroest.structure.AbstractLayer;
+import com.dmoser.codyssey.bifroest.structure.InsertCommand;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public class CustomerLayer extends Layer {
+public class CustomerLayer extends AbstractLayer {
 
   CustomerService customerService = new CustomerService();
 
@@ -17,11 +17,10 @@ public class CustomerLayer extends Layer {
     addCommand("update", new InsertCommand<>(customerService::updateCustomer, CustomerDTO.class));
     addCommand(
         "list",
-        _ ->
-            (Response)
-                () ->
-                    customerService.list().stream()
-                        .map(Record::toString)
-                        .collect(Collectors.joining("\n")));
+        (p, request) ->
+            customerService.list().stream()
+                .map(Record::toString)
+                .collect(Collectors.joining("\n")));
+    addLayer("customer", Pattern.compile("^\\d+$"), new SingleCustomerLayer(customerService));
   }
 }

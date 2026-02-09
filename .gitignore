@@ -321,7 +321,7 @@ pyrightconfig.json
 !src/**/build/
 
 # Ignore Gradle GUI config
-gradle-app.setting
+gradle-bifroestApp.setting
 
 # Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
 !gradle-wrapper.jar

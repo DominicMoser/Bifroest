@@ -1,15 +1,18 @@
 package com.dmoser.codyssey.bifroest.testUtils;
 
-import com.dmoser.codyssey.bifroest.commands.Command;
-import com.dmoser.codyssey.bifroest.layers.NewLayer;
+import com.dmoser.codyssey.bifroest.structure.Command;
+import com.dmoser.codyssey.bifroest.structure.ComplexCommand;
+import com.dmoser.codyssey.bifroest.structure.Layer;
 import java.util.Map;
+import java.util.Set;
+import java.util.regex.Pattern;
 
-public class TestLayer implements NewLayer {
+public class TestLayer implements Layer {
 
-  private Map<String, NewLayer> layers;
+  private Map<String, Layer> layers;
   private Map<String, Command> commands;
 
-  public TestLayer(Map<String, NewLayer> layers, Map<String, Command> commands) {
+  public TestLayer(Map<String, Layer> layers, Map<String, Command> commands) {
     this.layers = layers;
     this.commands = commands;
   }
@@ -20,7 +23,7 @@ public class TestLayer implements NewLayer {
   }
 
   @Override
-  public NewLayer getLayer(String nameRegex) {
+  public Layer getLayer(String nameRegex) {
     return layers.get(nameRegex);
   }
 
@@ -33,4 +36,29 @@ public class TestLayer implements NewLayer {
   public Command getCommand(String nameRegex) {
     return commands.get(nameRegex);
   }
+
+  @Override
+  public Set<String> getCommandNames() {
+    return commands.keySet();
+  }
+
+  @Override
+  public Set<String> getLayerNames() {
+    return layers.keySet();
+  }
+
+  @Override
+  public void addCommand(ComplexCommand complexCommand) {}
+
+  @Override
+  public void addCommand(String name, Command command) {}
+
+  @Override
+  public void addCommand(String name, Pattern commandPattern, Command command) {}
+
+  @Override
+  public void addLayer(String name, Layer newLayer) {}
+
+  @Override
+  public void addLayer(String name, Pattern layerPattern, Layer newLayer) {}
 }

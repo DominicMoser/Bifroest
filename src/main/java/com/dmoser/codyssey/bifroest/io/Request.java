@@ -25,10 +25,14 @@ public class Request {
     if (origin == null) {
       origin = List.of();
     }
+
     return new Request(List.copyOf(origin), List.copyOf(inputString));
   }
 
   public static Request of(List<String> origin, String inputString) {
+    if (inputString == null) {
+      throw new IllegalStateException();
+    }
     return of(origin, parseInputString(inputString));
   }
 
@@ -56,7 +60,9 @@ public class Request {
   }
 
   public List<String> getPath() {
-    return inputString.subList(0, pointer);
+    List<String> returnList = new ArrayList<>(origin);
+    returnList.addAll(inputString.subList(0, pointer));
+    return returnList;
   }
 
   public boolean movePointer() {
