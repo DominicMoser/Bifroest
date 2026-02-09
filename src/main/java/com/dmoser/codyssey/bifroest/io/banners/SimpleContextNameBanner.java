@@ -1,0 +1,14 @@
+package com.dmoser.codyssey.bifroest.io.banners;
+
+import com.dmoser.codyssey.bifroest.io.Banner;
+import com.dmoser.codyssey.bifroest.session.AppConfig;
+
+public class SimpleContextNameBanner implements Banner {
+
+  public SimpleContextNameBanner() {}
+
+  @Override
+  public String getString() {
+    return AppConfig.get().appName();
+  }
+}
