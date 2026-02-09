@@ -2,9 +2,12 @@ package com.dmoser.codyssey.bifroest;
 
 import com.dmoser.codyssey.bifroest.app.BifroestApp;
 import com.dmoser.codyssey.bifroest.app.BifroestCliApp;
+import com.dmoser.codyssey.bifroest.app.BifroestSSHApp;
 import com.dmoser.codyssey.bifroest.example.customers.CustomerLayer;
 import com.dmoser.codyssey.bifroest.io.banners.DefaultBifroestBanner;
+import com.dmoser.codyssey.bifroest.io.banners.SimpleContextNameBanner;
 import com.dmoser.codyssey.bifroest.io.communications.SimpleConsoleCommunication;
+import com.dmoser.codyssey.bifroest.io.promts.StringPrompt;
 import com.dmoser.codyssey.bifroest.io.promts.TerminalPrompt;
 import com.dmoser.codyssey.bifroest.session.AppConfig;
 import com.dmoser.codyssey.bifroest.structure.AbstractLayer;
@@ -26,7 +29,7 @@ public class Example extends AbstractLayer {
 
   /** Main entry point for the example application. Starts the SSH CLI server. */
   static void main() {
-    AppConfig.builder().withAppName("Bifroest").andAppVersion("1.0.0").build();
+    AppConfig.builder().withAppName("BifroestSSH").andAppVersion("1.0.0").build();
     Example example = new Example();
 
     BifroestCliApp app =
@@ -39,6 +42,16 @@ public class Example extends AbstractLayer {
             .andPrompt(new TerminalPrompt())
             .build();
 
+    BifroestSSHApp sshApp =
+        BifroestApp.builder()
+            .ssh()
+            .withName("BifroestSSH")
+            .andEntryPoint(example)
+            .andBanner(new SimpleContextNameBanner())
+            .andPrompt(new StringPrompt(">"))
+            .build();
+
+    sshApp.run();
     app.run();
   }
 

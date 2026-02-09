@@ -156,5 +156,9 @@ public abstract class BifroestApp {
     public BifroestCliApp.NameSetter cli() {
       return new BifroestCliApp.TerminalRunnerBuilder();
     }
+
+    public BifroestSSHApp.NameSetter ssh() {
+      return new BifroestSSHApp.SshAppBuilder();
+    }
   }
 }
