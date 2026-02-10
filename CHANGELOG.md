@@ -1,3 +1,10 @@
+# [2.1.0](https://github.com/DominicMoser/Bifroest/compare/v2.0.0...v2.1.0) (2026-02-10)
+
+
+### Features
+
+* add an ssh app ([d81c9d5](https://github.com/DominicMoser/Bifroest/commit/d81c9d531db53a358c66cabea0a6366a8f8cc3aa))
+
 # [2.0.0](https://github.com/DominicMoser/Bifroest/compare/v1.4.0...v2.0.0) (2026-02-09)
 
 
