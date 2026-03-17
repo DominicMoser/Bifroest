@@ -9,12 +9,17 @@ import java.util.regex.Pattern;
 
 public class TestLayer implements Layer {
 
-  private Map<String, Layer> layers;
-  private Map<String, Command> commands;
+  private final Map<String, Layer> layers;
+  private final Map<String, Command> commands;
 
   public TestLayer(Map<String, Layer> layers, Map<String, Command> commands) {
     this.layers = layers;
     this.commands = commands;
+  }
+
+  @Override
+  public String getLayerUUID() {
+    return "";
   }
 
   @Override

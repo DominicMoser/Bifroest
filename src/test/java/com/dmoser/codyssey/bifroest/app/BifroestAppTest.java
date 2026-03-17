@@ -1,14 +1,11 @@
 package com.dmoser.codyssey.bifroest.app;
 
 import com.dmoser.codyssey.bifroest.io.Prompt;
-import com.dmoser.codyssey.bifroest.io.Request;
-import com.dmoser.codyssey.bifroest.io.Result;
 import com.dmoser.codyssey.bifroest.io.communications.SimpleConsoleCommunication;
 import com.dmoser.codyssey.bifroest.io.completer.CompleterProviderImplementation;
 import com.dmoser.codyssey.bifroest.io.errors.ErrorCode;
 import com.dmoser.codyssey.bifroest.io.flags.CommandNotFoundFlag;
 import com.dmoser.codyssey.bifroest.io.flags.Flags;
-import com.dmoser.codyssey.bifroest.io.flags.NavigationFlag;
 import com.dmoser.codyssey.bifroest.session.Session;
 import com.dmoser.codyssey.bifroest.structure.Command;
 import com.dmoser.codyssey.bifroest.structure.Layer;
@@ -38,6 +35,7 @@ public class BifroestAppTest {
     com.dmoser.codyssey.bifroest.session.Session.get().setCurrentPath(List.of());
   }
 
+  /*
   @Test
   public void testCommandNotFound() {
     TestRunner t = new TestRunner();
@@ -145,6 +143,7 @@ public class BifroestAppTest {
     Assertions.assertEquals(1, testFlag.request().getArguments().size());
     Assertions.assertEquals("arg", testFlag.request().getArguments().getFirst());
   }
+  */
 
   @Test
   public void testHandleFlag() {

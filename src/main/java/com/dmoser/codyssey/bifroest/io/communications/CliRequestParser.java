@@ -25,7 +25,7 @@ public class CliRequestParser implements RequestParser<String> {
   private final Pattern argPattern;
 
   public CliRequestParser() {
-    String pathRegex = "^?(((?<origin>[/~(./)]?)(?<path>(\\w+/)*))?)";
+    String pathRegex = "^(((?<origin>(/|~|\\./)?)(?<path>(\\w+/)*))?)";
     String commandRegex = " ?(?<command>\\S+)";
     String argsRegex = "(?<args>( (((-[\\w]+) (\\S)+)|(\\w+)))+)?";
     String argRegex = "((?<param>(-(?<key>[\\w]+)) (?<value>\\S+))|(?<arg>\\w+))";

@@ -21,10 +21,10 @@ public class NavigationFlagHandler implements Capability {
     List<String> currentPath = new ArrayList<>(navigationFlag.path());
     Layer currentLayer = bifroestApp.getRootLayer();
     while (!currentPath.isEmpty() && currentLayer.hasLayer(currentPath.getFirst())) {
+      currentLayer = currentLayer.getLayer(currentPath.getFirst());
       if (!currentLayer.isAccessible(currentPath.getFirst())) {
         return;
       }
-      currentLayer = currentLayer.getLayer(currentPath.getFirst());
       currentPath.removeFirst();
     }
     if (currentPath.isEmpty()) {
