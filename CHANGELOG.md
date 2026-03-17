@@ -1,3 +1,10 @@
+## [2.2.4](https://github.com/DominicMoser/Bifroest/compare/v2.2.3...v2.2.4) (2026-03-17)
+
+
+### Bug Fixes
+
+* disable Tests with spaces ([f4e162b](https://github.com/DominicMoser/Bifroest/commit/f4e162b71366ed2bddb78d1277cbb63b7cce6161))
+
 ## [2.2.3](https://github.com/DominicMoser/Bifroest/compare/v2.2.2...v2.2.3) (2026-03-17)
 
 
