@@ -1,3 +1,10 @@
+# [2.2.0](https://github.com/DominicMoser/Bifroest/compare/v2.1.1...v2.2.0) (2026-03-17)
+
+
+### Features
+
+* change the communication System ([fb98cb7](https://github.com/DominicMoser/Bifroest/commit/fb98cb773acf90b179e8924634b9e94ebd8439bf))
+
 ## [2.1.1](https://github.com/DominicMoser/Bifroest/compare/v2.1.0...v2.1.1) (2026-02-10)
 
 
