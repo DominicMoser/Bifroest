@@ -1,11 +1,11 @@
 package com.dmoser.codyssey.bifroest.structure;
 
-import com.dmoser.codyssey.bifroest.structure.Command;
-import com.dmoser.codyssey.bifroest.structure.ComplexCommand;
 import java.util.Set;
 import java.util.regex.Pattern;
 
 public interface Layer {
+
+  String getLayerUUID();
 
   boolean hasLayer(String nameRegex);
 
@@ -29,7 +29,7 @@ public interface Layer {
 
   void addLayer(String name, Pattern layerPattern, Layer newLayer);
 
-  default boolean isAccessible(String command) {
+  default boolean isAccessible(String callName) {
     return true;
   }
 }

@@ -2,7 +2,9 @@ package com.dmoser.codyssey.bifroest.session;
 
 import com.dmoser.codyssey.bifroest.io.Communication;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Session {
 
@@ -11,6 +13,7 @@ public class Session {
   private final String name;
   private final Communication io;
   List<String> currentPath = new ArrayList<>();
+  Map<String, Object> variables = new HashMap<>();
   private boolean isRunning = true;
 
   private Session(String name, Communication communication) {
@@ -65,6 +68,14 @@ public class Session {
 
   public void setCurrentPath(List<String> newPath) {
     this.currentPath = newPath;
+  }
+
+  public void putVariable(String key, Object value) {
+    variables.put(key, value);
+  }
+
+  public Object getVariable(String key) {
+    return variables.get(key);
   }
 
   public interface SetNameStep {

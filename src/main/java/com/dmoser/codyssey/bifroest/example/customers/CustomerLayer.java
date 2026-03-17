@@ -17,7 +17,7 @@ public class CustomerLayer extends AbstractLayer {
     addCommand("update", new InsertCommand<>(customerService::updateCustomer, CustomerDTO.class));
     addCommand(
         "list",
-        (p, request) ->
+        (request) ->
             customerService.list().stream()
                 .map(Record::toString)
                 .collect(Collectors.joining("\n")));

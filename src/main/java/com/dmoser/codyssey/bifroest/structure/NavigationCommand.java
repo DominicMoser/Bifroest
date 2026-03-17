@@ -1,8 +1,8 @@
 package com.dmoser.codyssey.bifroest.structure;
 
-import com.dmoser.codyssey.bifroest.io.flags.Flags;
 import com.dmoser.codyssey.bifroest.io.Request;
 import com.dmoser.codyssey.bifroest.io.Result;
+import com.dmoser.codyssey.bifroest.io.flags.Flags;
 import com.dmoser.codyssey.bifroest.session.Session;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +42,7 @@ public class NavigationCommand implements ComplexCommand {
 
   @Override
   public Result execute(Request request) {
-    String rawPath = request.getCommand();
+    String rawPath = request.command();
     List<String> newPathSegments = calculatePath(rawPath);
     return Flags.navigationFlag(newPathSegments);
   }

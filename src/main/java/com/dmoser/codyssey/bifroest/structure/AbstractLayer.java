@@ -1,16 +1,17 @@
 package com.dmoser.codyssey.bifroest.structure;
 
-import com.dmoser.codyssey.bifroest.structure.*;
+import com.dmoser.codyssey.bifroest.session.Session;
 import java.util.*;
 import java.util.regex.Pattern;
 
 public abstract class AbstractLayer implements Layer {
 
-  private Map<Pattern, Layer> layers = new HashMap<>();
-  private Map<String, Layer> layerInfoMap = new HashMap<>();
+  private final Map<Pattern, Layer> layers = new HashMap<>();
+  private final Map<String, Layer> layerInfoMap = new HashMap<>();
 
-  private Map<Pattern, Command> commands = new HashMap<>();
-  private Map<String, Command> commandInfoMap = new HashMap<>();
+  private final Map<Pattern, Command> commands = new HashMap<>();
+  private final Map<String, Command> commandInfoMap = new HashMap<>();
+  private final String layerUuid = UUID.randomUUID().toString();
 
   protected AbstractLayer() {
     addCommand(new LsCommand(this));
@@ -36,6 +37,11 @@ public abstract class AbstractLayer implements Layer {
     }
     this.layerInfoMap.put(name, newLayer);
     this.layers.put(layerPattern, newLayer);
+  }
+
+  @Override
+  public String getLayerUUID() {
+    return this.layerUuid;
   }
 
   public void addCommand(ComplexCommand command) {
@@ -73,12 +79,15 @@ public abstract class AbstractLayer implements Layer {
   }
 
   @Override
-  public Layer getLayer(String nameRegex) {
-    if (layerInfoMap.containsKey(nameRegex)) {
-      return layerInfoMap.get(nameRegex);
+  public Layer getLayer(String nameValue) {
+    if (layerInfoMap.containsKey(nameValue)) {
+      return layerInfoMap.get(nameValue);
     }
     for (Map.Entry<Pattern, Layer> entry : layers.entrySet()) {
-      if (entry.getKey().matcher(nameRegex).matches()) {
+      if (entry.getKey().matcher(nameValue).matches()) {
+        Layer regexLayer = entry.getValue();
+
+        Session.get().putVariable(regexLayer.getLayerUUID() + "invoke", nameValue);
         return entry.getValue();
       }
     }

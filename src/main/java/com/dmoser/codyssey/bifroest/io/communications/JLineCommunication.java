@@ -1,13 +1,10 @@
 package com.dmoser.codyssey.bifroest.io.communications;
 
 import com.dmoser.codyssey.bifroest.io.Banner;
-import com.dmoser.codyssey.bifroest.io.Communication;
 import com.dmoser.codyssey.bifroest.io.Error;
 import com.dmoser.codyssey.bifroest.io.Prompt;
-import com.dmoser.codyssey.bifroest.io.Request;
 import com.dmoser.codyssey.bifroest.io.Response;
 import com.dmoser.codyssey.bifroest.io.completer.CompleterProvider;
-import com.dmoser.codyssey.bifroest.session.Session;
 import java.io.IOException;
 import java.util.List;
 import org.jline.reader.Candidate;
@@ -21,21 +18,16 @@ import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import org.jline.utils.InfoCmp;
 
-public class JLineCommunication implements Communication {
+public class JLineCommunication extends AbstractCommunication<String> {
   private final Terminal terminal;
   private final LineReader lineReader;
 
   public JLineCommunication() {
+    super(new CliRequestParser());
     System.setProperty("org.jline.terminal.jansi", "false");
     this.terminal = createTerminal();
     this.lineReader = createLineReader();
     terminal.puts(InfoCmp.Capability.clear_screen);
-  }
-
-  @Override
-  public Request getRequest(Prompt prompt) {
-    String input = lineReader.readLine(prompt.leftValue(), "<<<", (Character) null, "");
-    return Request.of(Session.get().getCurrentPath(), input);
   }
 
   @Override
@@ -85,7 +77,12 @@ public class JLineCommunication implements Communication {
   }
 
   @Override
-  public String getParam(String name, String formParamMsg) {
+  String readSource(Prompt prompt) {
+    return lineReader.readLine(prompt.leftValue(), prompt.rightValue(), (Character) null, "");
+  }
+
+  @Override
+  public String requestParam(String name, String formParamMsg) {
     String prompt = formParamMsg != null ? formParamMsg : "Please enter %s> ".formatted(name);
     return lineReader.readLine(prompt);
   }

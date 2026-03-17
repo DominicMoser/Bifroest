@@ -1,13 +1,8 @@
 package com.dmoser.codyssey.bifroest.io.communications;
 
-import com.dmoser.codyssey.bifroest.io.Banner;
-import com.dmoser.codyssey.bifroest.io.Communication;
+import com.dmoser.codyssey.bifroest.io.*;
 import com.dmoser.codyssey.bifroest.io.Error;
-import com.dmoser.codyssey.bifroest.io.Prompt;
-import com.dmoser.codyssey.bifroest.io.Request;
-import com.dmoser.codyssey.bifroest.io.Response;
 import com.dmoser.codyssey.bifroest.io.completer.CompleterProvider;
-import com.dmoser.codyssey.bifroest.session.Session;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -23,11 +18,12 @@ import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import org.jline.utils.InfoCmp;
 
-public class JLineSSHCommunication implements Communication {
+public class JLineSSHCommunication extends AbstractCommunication {
   private final Terminal terminal;
   private final LineReader lineReader;
 
   public JLineSSHCommunication(InputStream in, OutputStream out) {
+    super(new CliRequestParser());
     try {
       System.setProperty("org.jline.terminal.jansi", "false");
       this.terminal = TerminalBuilder.builder().system(false).streams(in, out).dumb(false).build();
@@ -36,12 +32,6 @@ public class JLineSSHCommunication implements Communication {
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
-  }
-
-  @Override
-  public Request getRequest(Prompt prompt) {
-    String input = lineReader.readLine(prompt.leftValue(), "", (Character) null, "");
-    return Request.of(Session.get().getCurrentPath(), input);
   }
 
   @Override
@@ -91,7 +81,12 @@ public class JLineSSHCommunication implements Communication {
   }
 
   @Override
-  public String getParam(String name, String formParamMsg) {
+  Object readSource(Prompt prompt) {
+    return lineReader.readLine(prompt.leftValue(), "", (Character) null, "");
+  }
+
+  @Override
+  public String requestParam(String name, String formParamMsg) {
     String prompt = formParamMsg != null ? formParamMsg : "Please enter %s> ".formatted(name);
     return lineReader.readLine(prompt);
   }

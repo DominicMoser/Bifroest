@@ -61,12 +61,13 @@ public class Example extends AbstractLayer {
       super();
       addLayer("t ", new CustomerLayer());
       addLayer("deep", this);
-      addCommand("d2", (p, args) -> new Random().nextInt(1, 3));
-      addCommand("d4", (p, args) -> new Random().nextInt(1, 5));
-      addCommand("d6", (p, args) -> new Random().nextInt(1, 7));
-      addCommand("d10", (p, args) -> new Random().nextInt(1, 11));
-      addCommand("d100", (p, args) -> new Random().nextInt(1, 101));
-      addCommand("r", (p, args) -> new Random().nextInt(1, Integer.parseInt(args.getFirst())));
+      addCommand("d2", (request) -> new Random().nextInt(1, 3));
+      addCommand("d4", (request) -> new Random().nextInt(1, 5));
+      addCommand("d6", (request) -> new Random().nextInt(1, 7));
+      addCommand("d10", (request) -> new Random().nextInt(1, 11));
+      addCommand("d100", (request) -> new Random().nextInt(1, 101));
+      addCommand(
+          "r", (request) -> new Random().nextInt(1, Integer.parseInt(request.args().getFirst())));
     }
   }
 }

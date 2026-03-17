@@ -9,6 +9,7 @@ import com.dmoser.codyssey.bifroest.io.Prompt;
 import com.dmoser.codyssey.bifroest.io.Request;
 import com.dmoser.codyssey.bifroest.io.Response;
 import com.dmoser.codyssey.bifroest.io.Result;
+import com.dmoser.codyssey.bifroest.io.communications.RequestOrigin;
 import com.dmoser.codyssey.bifroest.io.errors.ErrorCode;
 import com.dmoser.codyssey.bifroest.io.flags.*;
 import com.dmoser.codyssey.bifroest.session.Session;
@@ -53,32 +54,55 @@ public abstract class BifroestApp {
 
   protected Result handleRequest(Request request) {
 
-    Layer currentLayer = resolveActiveLayer();
-    List<String> pathSegments = new ArrayList<>(get().getCurrentPath());
+    Layer startLayer =
+        request.pathOrigin() == RequestOrigin.ROOT ? rootLayer : resolveActiveLayer();
+    List<String> path = request.path();
+    int index = 0;
+    Layer currentLayer = startLayer;
 
-    while (currentLayer.hasLayer(request.getCommand())) {
-      pathSegments.add(request.getCommand());
-      currentLayer = currentLayer.getLayer(request.getCommand());
-      if (!currentLayer.isAccessible(request.getCommand())) {
+    while (index < path.size()) {
+      if (!currentLayer.hasLayer(path.get(index))) {
+        return new CommandNotFoundFlag(ErrorCode.COMMAND_NOT_FOUND, "path not found");
+      }
+      currentLayer = currentLayer.getLayer(path.get(index));
+      if (!currentLayer.isAccessible(path.get(index))) {
+        return new CommandNotFoundFlag(ErrorCode.COMMAND_NOT_FOUND, "path not accesible");
+      }
+      index++;
+    }
+    // the command is a layer and not a command. so we move there.
+    if (currentLayer.hasLayer(request.command())) {
+      Layer layer = currentLayer.getLayer(request.command());
+      if (layer.isAccessible(request.command())) {
+        List<String> navPath =
+            switch (request.pathOrigin()) {
+              case ROOT -> new ArrayList<>();
+              default -> new ArrayList<>(Session.get().getCurrentPath());
+            };
+        navPath.addAll(request.path());
+        navPath.add(request.command());
+        return new NavigationFlag(navPath);
+      }
+    }
+
+    if (currentLayer.hasCommand(request.command())) {
+      Command command = currentLayer.getCommand(request.command());
+      /*if (command.isAccessible(request.command())) {
         return new CommandNotFoundFlag(ErrorCode.COMMAND_NOT_FOUND, "");
-      }
-      if (!request.movePointer()) {
-        return Flags.navigationFlag(pathSegments);
+      }*/
+      return currentLayer.getCommand(request.command()).execute(request);
+    }
+
+    // Path not found. try global command, but only if path is empty
+    if (request.path().isEmpty()) {
+      for (Map.Entry<Pattern, Command> entry : globalCommands.entrySet()) {
+        if (entry.getKey().matcher(request.command()).matches()) {
+          return entry.getValue().execute(request);
+        }
       }
     }
 
-    if (currentLayer.hasCommand(request.getCommand())) {
-      return currentLayer.getCommand(request.getCommand()).execute(request);
-    }
-
-    request.resetPointer();
-
-    for (Map.Entry<Pattern, Command> entry : globalCommands.entrySet()) {
-      if (entry.getKey().matcher(request.getCommand()).matches()) {
-        return entry.getValue().execute(request);
-      }
-    }
-    return new CommandNotFoundFlag(ErrorCode.COMMAND_NOT_FOUND, request.getCommand());
+    return new CommandNotFoundFlag(ErrorCode.COMMAND_NOT_FOUND, request.command());
   }
 
   public void run() {
@@ -114,7 +138,8 @@ public abstract class BifroestApp {
     while (session.isRunning()) {
       Result result;
       try {
-        result = handleRequest(io.getRequest(prompt));
+        Request request = io.getRequest(prompt);
+        result = handleRequest(request);
       } catch (Exception e) {
         result = new RequestExceptionFlag(e, ErrorCode.INVALID_INPUT);
       }

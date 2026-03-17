@@ -1,11 +1,10 @@
 package com.dmoser.codyssey.bifroest.capabilities;
 
 import com.dmoser.codyssey.bifroest.app.BifroestApp;
-import com.dmoser.codyssey.bifroest.io.flags.NavigationFlag;
 import com.dmoser.codyssey.bifroest.io.Flag;
+import com.dmoser.codyssey.bifroest.io.flags.NavigationFlag;
 import com.dmoser.codyssey.bifroest.session.Session;
 import com.dmoser.codyssey.bifroest.structure.Layer;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,6 +21,9 @@ public class NavigationFlagHandler implements Capability {
     List<String> currentPath = new ArrayList<>(navigationFlag.path());
     Layer currentLayer = bifroestApp.getRootLayer();
     while (!currentPath.isEmpty() && currentLayer.hasLayer(currentPath.getFirst())) {
+      if (!currentLayer.isAccessible(currentPath.getFirst())) {
+        return;
+      }
       currentLayer = currentLayer.getLayer(currentPath.getFirst());
       currentPath.removeFirst();
     }

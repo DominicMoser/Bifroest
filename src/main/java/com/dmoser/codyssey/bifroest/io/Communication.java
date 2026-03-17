@@ -3,6 +3,7 @@ package com.dmoser.codyssey.bifroest.io;
 import com.dmoser.codyssey.bifroest.io.completer.CompleterProvider;
 
 public interface Communication {
+
   Request getRequest(Prompt prompt);
 
   void printResponse(Response result);
@@ -17,5 +18,5 @@ public interface Communication {
 
   void setCompleterProvider(CompleterProvider provider);
 
-  String getParam(String name, String formParamMsg);
+  String requestParam(String name, String formParamMsg);
 }

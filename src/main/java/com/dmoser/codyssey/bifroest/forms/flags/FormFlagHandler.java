@@ -26,7 +26,7 @@ public class FormFlagHandler implements Capability {
     for (FormParameter formParameter : form.getFormParameters()) {
       String formParamMsg = formParameter.msg();
       String formParamName = formParameter.name();
-      String value = io.getParam(formParamName, formParamMsg);
+      String value = io.requestParam(formParamName, formParamMsg);
       formElementMap.put(formParameter.name(), value);
     }
     target.accept(form.submit(formElementMap));
