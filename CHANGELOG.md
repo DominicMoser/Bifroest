@@ -1,3 +1,10 @@
+## [2.2.2](https://github.com/DominicMoser/Bifroest/compare/v2.2.1...v2.2.2) (2026-03-17)
+
+
+### Bug Fixes
+
+* remove faulty javadoc ([655a63a](https://github.com/DominicMoser/Bifroest/commit/655a63ab0a0f0ac97e6690412556b9265fa23b6a))
+
 ## [2.2.1](https://github.com/DominicMoser/Bifroest/compare/v2.2.0...v2.2.1) (2026-03-17)
 
 
