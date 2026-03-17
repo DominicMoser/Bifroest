@@ -8,17 +8,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-// TODO "([^"]*)"|(\S+) add regex for " " commands, and params
-
-/**
- * public static List<String> parseInputString(String inputString) { List<String> result = new
- * ArrayList<>(); // TODO put outside Matcher matcher =
- * Pattern.compile("\"([^\"]*)\"|(\\S+)").matcher(inputString);
- *
- * <p>while (matcher.find()) { if (matcher.group(1) != null) { result.add(matcher.group(1)); //
- * quoted text (without quotes) } else { result.add(matcher.group(2)); // normal word } } return
- * result; }
- */
 public class CliRequestParser implements RequestParser<String> {
 
   private final Pattern fullInputPattern;
