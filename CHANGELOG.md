@@ -1,3 +1,10 @@
+## [2.2.3](https://github.com/DominicMoser/Bifroest/compare/v2.2.2...v2.2.3) (2026-03-17)
+
+
+### Bug Fixes
+
+* repair faulty test ([fa71c8e](https://github.com/DominicMoser/Bifroest/commit/fa71c8e41e6213350ed2122def4eb7f60121dba8))
+
 ## [2.2.2](https://github.com/DominicMoser/Bifroest/compare/v2.2.1...v2.2.2) (2026-03-17)
 
 
