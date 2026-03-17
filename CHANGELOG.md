@@ -1,3 +1,10 @@
+## [2.2.1](https://github.com/DominicMoser/Bifroest/compare/v2.2.0...v2.2.1) (2026-03-17)
+
+
+### Bug Fixes
+
+* repair the parsing of '../' Strings ([21541f9](https://github.com/DominicMoser/Bifroest/commit/21541f9ddeb00b3e88370ffe72bfff4ce4ee6a57))
+
 # [2.2.0](https://github.com/DominicMoser/Bifroest/compare/v2.1.1...v2.2.0) (2026-03-17)
 
 
