@@ -1,9 +1,11 @@
 package com.dmoser.codyssey.bifroest.structure;
 
 import com.dmoser.codyssey.bifroest.io.Request;
+import com.dmoser.codyssey.bifroest.io.communications.RequestOrigin;
 import com.dmoser.codyssey.bifroest.io.flags.NavigationFlag;
 import com.dmoser.codyssey.bifroest.session.Session;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -265,7 +267,7 @@ public class NavigationCommandTest {
     Session.get().setCurrentPath(currentPath);
 
     NavigationCommand navigationCommand = new NavigationCommand();
-    Request request = Request.of(List.of(), command);
+    Request request = new Request(RequestOrigin.RELATIVE, List.of(), command, List.of(), Map.of());
     NavigationFlag result = (NavigationFlag) navigationCommand.execute(request);
 
     Assertions.assertEquals(expectedPath, result.path());
