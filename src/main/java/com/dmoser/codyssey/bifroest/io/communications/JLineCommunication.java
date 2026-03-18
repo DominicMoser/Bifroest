@@ -77,7 +77,7 @@ public class JLineCommunication extends AbstractCommunication<String> {
   }
 
   @Override
-  String readSource(Prompt prompt) {
+  protected String readSource(Prompt prompt) {
     return lineReader.readLine(prompt.leftValue(), prompt.rightValue(), (Character) null, "");
   }
 

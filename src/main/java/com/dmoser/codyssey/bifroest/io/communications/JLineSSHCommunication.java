@@ -81,7 +81,7 @@ public class JLineSSHCommunication extends AbstractCommunication {
   }
 
   @Override
-  Object readSource(Prompt prompt) {
+  protected Object readSource(Prompt prompt) {
     return lineReader.readLine(prompt.leftValue(), "", (Character) null, "");
   }
 

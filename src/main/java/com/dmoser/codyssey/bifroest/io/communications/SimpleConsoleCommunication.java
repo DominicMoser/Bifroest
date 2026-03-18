@@ -27,7 +27,9 @@ public class SimpleConsoleCommunication extends AbstractCommunication<String> {
   }
 
   @Override
-  public void close() {}
+  public void close() {
+    sc.close();
+  }
 
   @Override
   public void printError(Error unhandledFlag) {
@@ -42,15 +44,19 @@ public class SimpleConsoleCommunication extends AbstractCommunication<String> {
   @Override
   public void setCompleterProvider(CompleterProvider provider) {}
 
-  @Override
-  String readSource(Prompt prompt) {
-    IO.print(prompt.leftValue());
+  protected String nextLine() {
     return sc.nextLine();
+  }
+
+  @Override
+  protected String readSource(Prompt prompt) {
+    IO.print(prompt.leftValue());
+    return nextLine();
   }
 
   @Override
   public String requestParam(String name, String formParamMsg) {
     IO.print(name + ": ");
-    return sc.nextLine();
+    return nextLine();
   }
 }

@@ -20,5 +20,5 @@ public abstract class AbstractCommunication<INPUT_TYPE> implements Communication
   @Override
   public void setCompleterProvider(CompleterProvider provider) {}
 
-  abstract INPUT_TYPE readSource(Prompt prompt);
+  protected abstract INPUT_TYPE readSource(Prompt prompt);
 }
