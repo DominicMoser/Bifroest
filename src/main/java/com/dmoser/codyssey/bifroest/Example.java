@@ -10,6 +10,7 @@ import com.dmoser.codyssey.bifroest.io.communications.SimpleConsoleCommunication
 import com.dmoser.codyssey.bifroest.io.promts.StringPrompt;
 import com.dmoser.codyssey.bifroest.io.promts.TerminalPrompt;
 import com.dmoser.codyssey.bifroest.session.AppConfig;
+import com.dmoser.codyssey.bifroest.session.Session;
 import com.dmoser.codyssey.bifroest.structure.AbstractLayer;
 import java.util.Random;
 
@@ -25,6 +26,7 @@ public class Example extends AbstractLayer {
     super();
     addLayer("dice", new Dice());
     addLayer("customer", new CustomerLayer());
+    addCommand("test", (r) -> Session.get().getVariable("Hello"));
   }
 
   /** Main entry point for the example application. Starts the SSH CLI server. */
@@ -40,6 +42,7 @@ public class Example extends AbstractLayer {
             .andEntryPoint(example)
             .andBanner(new DefaultBifroestBanner())
             .andPrompt(new TerminalPrompt())
+            .andSessionInitialization(session -> session.putVariable("Hello", "Blub"))
             .build();
 
     BifroestSSHApp sshApp =

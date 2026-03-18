@@ -13,6 +13,7 @@ import com.dmoser.codyssey.bifroest.session.Session;
 import com.dmoser.codyssey.bifroest.structure.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
 public class BifroestCliApp extends BifroestApp {
@@ -126,6 +127,9 @@ public class BifroestCliApp extends BifroestApp {
 
     BifroestCliApp.OptionalFieldsSetter andPrompt(Prompt prompt);
 
+    BifroestCliApp.OptionalFieldsSetter andSessionInitialization(
+        Consumer<Session> sessionInitializer);
+
     BifroestCliApp build();
   }
 
@@ -140,6 +144,7 @@ public class BifroestCliApp extends BifroestApp {
     Banner banner = new SimpleContextNameBanner();
     Prompt prompt = Prompt.DEFAULT;
     Communication communication;
+    Consumer<Session> sessionInitializer = _ -> {};
 
     @Override
     public BifroestCliApp.OptionalFieldsSetter andBanner(Banner banner) {
@@ -154,8 +159,16 @@ public class BifroestCliApp extends BifroestApp {
     }
 
     @Override
+    public OptionalFieldsSetter andSessionInitialization(Consumer<Session> sessionInitializer) {
+      this.sessionInitializer = sessionInitializer;
+      return this;
+    }
+
+    @Override
     public BifroestCliApp build() {
-      return new BifroestCliApp(name, rootLayer, communication, banner, prompt);
+      BifroestCliApp app = new BifroestCliApp(name, rootLayer, communication, banner, prompt);
+      app.sessionInitializer = this.sessionInitializer;
+      return app;
     }
 
     @Override

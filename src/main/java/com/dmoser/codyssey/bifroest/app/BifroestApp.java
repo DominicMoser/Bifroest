@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
 public abstract class BifroestApp {
@@ -26,11 +27,18 @@ public abstract class BifroestApp {
   protected Map<Class<? extends Flag>, Capability> capabilityMap = new HashMap<>();
   protected Capability defaultFlagHandler = new UnhandledFlagHandler();
   protected Map<Pattern, Command> globalCommands = new HashMap<>();
+  protected Consumer<Session> sessionInitializer = _ -> {};
   protected Prompt prompt;
 
   public BifroestApp(Layer rootLayer, Prompt prompt) {
     this.rootLayer = rootLayer;
     this.prompt = prompt;
+  }
+
+  public BifroestApp(Layer rootLayer, Prompt prompt, Consumer<Session> sessionInitializer) {
+    this.rootLayer = rootLayer;
+    this.prompt = prompt;
+    this.sessionInitializer = sessionInitializer;
   }
 
   public static SelectAppType builder() {
@@ -110,6 +118,7 @@ public abstract class BifroestApp {
     loadCapabilities();
     loadGlobalCommands();
     initSession();
+    sessionInitializer.accept(Session.get());
     start();
     loop();
     stop();

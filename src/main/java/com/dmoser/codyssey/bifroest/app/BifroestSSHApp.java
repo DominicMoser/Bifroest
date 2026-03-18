@@ -6,11 +6,13 @@ import com.dmoser.codyssey.bifroest.io.Communication;
 import com.dmoser.codyssey.bifroest.io.Prompt;
 import com.dmoser.codyssey.bifroest.io.banners.SimpleContextNameBanner;
 import com.dmoser.codyssey.bifroest.io.communications.JLineSSHCommunication;
+import com.dmoser.codyssey.bifroest.session.Session;
 import com.dmoser.codyssey.bifroest.structure.Layer;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Paths;
+import java.util.function.Consumer;
 import org.apache.sshd.server.Environment;
 import org.apache.sshd.server.ExitCallback;
 import org.apache.sshd.server.SshServer;
@@ -22,6 +24,7 @@ import org.apache.sshd.server.shell.ShellFactory;
 
 public class BifroestSSHApp {
 
+  protected Consumer<Session> sessionInitializer = _ -> {};
   InputStream in = null;
   OutputStream out = null;
   Layer rootLayer = null;
@@ -70,6 +73,8 @@ public class BifroestSSHApp {
 
     BifroestSSHApp.OptionalFieldsSetter andPrompt(Prompt prompt);
 
+    BifroestSSHApp.OptionalFieldsSetter andSessionInitializer(Consumer<Session> sessionInitializer);
+
     BifroestSSHApp build();
   }
 
@@ -84,6 +89,7 @@ public class BifroestSSHApp {
     Banner banner = new SimpleContextNameBanner();
     Prompt prompt = Prompt.DEFAULT;
     Communication communication;
+    Consumer<Session> sessionInitializer;
 
     @Override
     public BifroestSSHApp.OptionalFieldsSetter andBanner(Banner banner) {
@@ -98,8 +104,16 @@ public class BifroestSSHApp {
     }
 
     @Override
+    public OptionalFieldsSetter andSessionInitializer(Consumer<Session> sessionInitializer) {
+      this.sessionInitializer = sessionInitializer;
+      return this;
+    }
+
+    @Override
     public BifroestSSHApp build() {
-      return new BifroestSSHApp(name, rootLayer, banner, prompt);
+      BifroestSSHApp app = new BifroestSSHApp(name, rootLayer, banner, prompt);
+      app.sessionInitializer = this.sessionInitializer;
+      return app;
     }
 
     @Override
@@ -177,7 +191,9 @@ public class BifroestSSHApp {
               .andEntryPoint(rootLayer)
               .andBanner(banner)
               .andPrompt(prompt)
+              .andSessionInitialization(sessionInitializer)
               .build();
+
       app.run();
       exit.onExit(0);
     }
