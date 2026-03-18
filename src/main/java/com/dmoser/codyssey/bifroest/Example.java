@@ -7,12 +7,12 @@ import com.dmoser.codyssey.bifroest.example.customers.CustomerLayer;
 import com.dmoser.codyssey.bifroest.io.banners.DefaultBifroestBanner;
 import com.dmoser.codyssey.bifroest.io.banners.SimpleContextNameBanner;
 import com.dmoser.codyssey.bifroest.io.communications.SimpleConsoleCommunication;
-import com.dmoser.codyssey.bifroest.io.promts.StringPrompt;
 import com.dmoser.codyssey.bifroest.io.promts.TerminalPrompt;
 import com.dmoser.codyssey.bifroest.session.AppConfig;
 import com.dmoser.codyssey.bifroest.session.Session;
 import com.dmoser.codyssey.bifroest.structure.AbstractLayer;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * An example class that demonstrates how to use the Bifroest library to start an SSH CLI server.
@@ -45,13 +45,16 @@ public class Example extends AbstractLayer {
             .andSessionInitialization(session -> session.putVariable("Hello", "Blub"))
             .build();
 
+    AtomicInteger index = new AtomicInteger();
     BifroestSSHApp sshApp =
         BifroestApp.builder()
             .ssh()
             .withName("BifroestSSH")
             .andEntryPoint(example)
             .andBanner(new SimpleContextNameBanner())
-            .andPrompt(new StringPrompt(">"))
+            .andPrompt(new TerminalPrompt())
+            .andSessionInitializer(
+                session -> session.putVariable("Hello", "UserNumber " + index.getAndIncrement()))
             .build();
 
     sshApp.run();

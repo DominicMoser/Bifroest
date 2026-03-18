@@ -1,12 +1,10 @@
 package com.dmoser.codyssey.bifroest.structure;
 
-import com.dmoser.codyssey.bifroest.forms.flags.FormFlag;
 import com.dmoser.codyssey.bifroest.forms.Form;
+import com.dmoser.codyssey.bifroest.forms.flags.FormFlag;
 import com.dmoser.codyssey.bifroest.io.Request;
 import com.dmoser.codyssey.bifroest.io.Result;
-
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 /**
  * Command that handles object creation or update by using a {@link Form} to collect data and a
@@ -17,19 +15,7 @@ import java.util.function.Supplier;
 public class InsertCommand<T> implements Command {
 
   protected final Consumer<T> target;
-  protected final Supplier<Form<T>> formSupplier;
-  protected Form<T> form;
-
-  /**
-   * Constructs an {@code InsertCommand} with a supplier for lazy form initialization.
-   *
-   * @param target the consumer that will receive the submitted object
-   * @param formSupplier a supplier that provides the form instance
-   */
-  public InsertCommand(Consumer<T> target, Supplier<Form<T>> formSupplier) {
-    this.target = target;
-    this.formSupplier = formSupplier;
-  }
+  protected final Class<T> objectClass;
 
   /**
    * Constructs an {@code InsertCommand} that will try to automatically find the form for the given
@@ -40,14 +26,11 @@ public class InsertCommand<T> implements Command {
    */
   public InsertCommand(Consumer<T> target, Class<T> objectClass) {
     this.target = target;
-    this.formSupplier = () -> Form.getForm(objectClass);
+    this.objectClass = objectClass;
   }
 
   @Override
   public Result execute(Request request) {
-    if (form == null) {
-      form = formSupplier.get();
-    }
-    return new FormFlag<T>(form, target);
+    return new FormFlag<T>(objectClass, target);
   }
 }
