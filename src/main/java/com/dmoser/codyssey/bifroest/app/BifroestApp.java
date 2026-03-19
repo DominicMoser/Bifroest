@@ -115,10 +115,10 @@ public abstract class BifroestApp {
 
   public void run() {
     init();
-    loadCapabilities();
-    loadGlobalCommands();
     initSession();
     sessionInitializer.accept(Session.get());
+    loadCapabilities();
+    loadGlobalCommands();
     start();
     loop();
     stop();

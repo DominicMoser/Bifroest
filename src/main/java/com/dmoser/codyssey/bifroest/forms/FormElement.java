@@ -1,3 +1,5 @@
 package com.dmoser.codyssey.bifroest.forms;
 
-public record FormElement(Class<?> elementType, String name, String msg, int position) {}
+import java.lang.reflect.Type;
+
+public record FormElement(Class<?> elementType, Type type, String name, String msg, int position) {}

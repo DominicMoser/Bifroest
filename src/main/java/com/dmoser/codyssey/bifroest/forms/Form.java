@@ -5,6 +5,7 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.RecordComponent;
+import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -65,12 +66,13 @@ public record Form<FormType>(List<FormElement> formElements, MethodHandle elemen
       List<FormElement> formElementList = new ArrayList<>();
 
       for (int i = 0; i < components.length; i++) {
-        Class<?> paramType = components[i].getType();
         String paramFieldName = components[i].getName();
         FormMsg paramMsgAnnotation = components[i].getAnnotation(FormMsg.class);
         String paramMsg = paramMsgAnnotation != null ? paramMsgAnnotation.value() : paramFieldName;
-        formElementList.add(new FormElement(paramType, paramFieldName, paramMsg, i));
-        paramTypes[i] = paramType;
+        Type paramType = components[i].getGenericType();
+        formElementList.add(
+            new FormElement(components[i].getType(), paramType, paramFieldName, paramMsg, i));
+        paramTypes[i] = components[i].getType();
       }
       MethodHandles.Lookup publicLookup = MethodHandles.publicLookup();
       MethodType methodType = MethodType.methodType(void.class, paramTypes);
