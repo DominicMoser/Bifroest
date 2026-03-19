@@ -13,7 +13,7 @@ public class StringResolver implements FormParameterResolver {
       return request.params().get(name);
     }
     int position = formElement.position();
-    if (request.args().size() > position == position >= 0) {
+    if (request.args().size() > position && position >= 0) {
       return request.args().get(position);
     }
     return communication.requestParam(formElement.name(), formElement.msg());
