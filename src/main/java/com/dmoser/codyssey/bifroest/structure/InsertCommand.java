@@ -31,6 +31,6 @@ public class InsertCommand<T> implements Command {
 
   @Override
   public Result execute(Request request) {
-    return new FormFlag<T>(objectClass, target);
+    return new FormFlag<T>(objectClass, target, request);
   }
 }

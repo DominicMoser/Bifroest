@@ -11,6 +11,7 @@ import com.dmoser.codyssey.bifroest.io.promts.TerminalPrompt;
 import com.dmoser.codyssey.bifroest.session.AppConfig;
 import com.dmoser.codyssey.bifroest.session.Session;
 import com.dmoser.codyssey.bifroest.structure.AbstractLayer;
+import com.dmoser.codyssey.bifroest.structure.InsertCommand;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -27,6 +28,7 @@ public class Example extends AbstractLayer {
     addLayer("dice", new Dice());
     addLayer("customer", new CustomerLayer());
     addCommand("test", (r) -> Session.get().getVariable("Hello"));
+    addCommand("insert", new InsertCommand<>((a) -> IO.println(a.toString()), TestDTO.class));
   }
 
   /** Main entry point for the example application. Starts the SSH CLI server. */

@@ -4,11 +4,9 @@ import com.dmoser.codyssey.bifroest.forms.annotations.FormMsg;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.lang.reflect.RecordComponent;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Represents a data entry mechanism for a specific type {@code T}.
@@ -17,7 +15,7 @@ import java.util.*;
  */
 public record Form<FormType>(List<FormElement> formElements, MethodHandle elementConstructor) {
 
-  private static final Map<Class<?>, Form<?>> cachedForms = new HashMap<>();
+  private static final Map<Class<?>, Form<?>> cachedForms = new ConcurrentHashMap<>();
 
   @SuppressWarnings("unchecked")
   private static <FormType> Optional<Form<FormType>> getCachedForm(Class<FormType> dtoClass) {
@@ -31,7 +29,6 @@ public record Form<FormType>(List<FormElement> formElements, MethodHandle elemen
 
   /**
    * Attempts to find and instantiate a form for the given class. It searches for a method annotated
-   * with {@link FormConstructor} in the class.
    *
    * @param dtoClass the class to find a form for
    * @param <FormType> the type of the object the form handles
@@ -45,7 +42,7 @@ public record Form<FormType>(List<FormElement> formElements, MethodHandle elemen
 
     form = getRecordForm(dtoClass);
     if (form.isPresent()) {
-      cachedForms.put(dtoClass, form.get());
+      cacheForm(dtoClass, form.get());
       return form.get();
     }
     throw new RuntimeException("Form could not be found");
@@ -72,7 +69,7 @@ public record Form<FormType>(List<FormElement> formElements, MethodHandle elemen
         String paramFieldName = components[i].getName();
         FormMsg paramMsgAnnotation = components[i].getAnnotation(FormMsg.class);
         String paramMsg = paramMsgAnnotation != null ? paramMsgAnnotation.value() : paramFieldName;
-        formElementList.add(new FormElement(paramType, paramFieldName, paramMsg));
+        formElementList.add(new FormElement(paramType, paramFieldName, paramMsg, i));
         paramTypes[i] = paramType;
       }
       MethodHandles.Lookup publicLookup = MethodHandles.publicLookup();
@@ -84,42 +81,6 @@ public record Form<FormType>(List<FormElement> formElements, MethodHandle elemen
       return Optional.of(form);
     } catch (Exception e) {
       return Optional.empty();
-    }
-  }
-
-  /**
-   * Uses reflection to find a static factory method annotated with {@link FormConstructor} and
-   * invokes it to obtain a {@link Form} instance.
-   *
-   * @param dtoClass the class to search for the annotation
-   * @param <FormType> the type of the object the form handles
-   * @return an {@link Optional} containing the {@link Form} if found and successfully invoked
-   */
-  static <FormType> Optional<Form<FormType>> getByAnnotation(Class<FormType> dtoClass) {
-    Optional<Method> methodOptional =
-        Arrays.stream(dtoClass.getMethods())
-            .filter(m -> m.isAnnotationPresent(FormConstructor.class))
-            .findAny();
-    if (methodOptional.isEmpty()) {
-      return Optional.empty();
-    }
-    Method method = methodOptional.get();
-
-    if (!Modifier.isStatic(method.getModifiers())) {
-      return Optional.empty();
-    }
-    if (!Form.class.isAssignableFrom(method.getReturnType())) {
-      return Optional.empty();
-    }
-
-    try {
-      @SuppressWarnings("unchecked")
-      Form<FormType> form = (Form<FormType>) method.invoke(null);
-      return Optional.of(form);
-    } catch (InvocationTargetException | IllegalAccessException e) {
-      return Optional.empty();
-    } catch (ClassCastException e) {
-      throw new IllegalStateException("Factory method did not return the right type");
     }
   }
 
