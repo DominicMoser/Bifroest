@@ -46,7 +46,6 @@ public class Example extends AbstractLayer {
             .andPrompt(new TerminalPrompt())
             .andSessionInitialization(session -> session.putVariable("Hello", "Blub"))
             .build();
-
     AtomicInteger index = new AtomicInteger();
     BifroestSSHApp sshApp =
         BifroestApp.builder()
